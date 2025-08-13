@@ -1,0 +1,17 @@
+{
+  "name": "romnosk/2390201-task-force-1",
+  "description": "Учебный проект HTML Academy TaskForce",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Romnosk\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "romnosk",
+      "email": "romnosk@gmail.com"
+    }
+  ],
+  "require": {}
+}
