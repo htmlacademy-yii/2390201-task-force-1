@@ -11,7 +11,6 @@ enum Action: string
 
   /**
    * Возвращает отображаемое имя действия
-   *
    * @return string
    */
   public function label(): string
