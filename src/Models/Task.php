@@ -20,7 +20,7 @@ class Task
       Action::Respond->value => Status::InWork->value,
     ],
     Status::InWork->value => [
-      Action::MarkDone->value => Status::Done->value,
+      Action::Complete->value => Status::Done->value,
       Action::Decline->value  => Status::Failed->value,
     ],
     Status::Canceled->value => [],
@@ -75,21 +75,23 @@ class Task
   }
 
   /**
-   * Возвращает список доступных действий для указанного статуса. Если задан статус, для
-   * которого нет действий - вернёт пустой массив.
+   * Возвращает список доступных действий для указанного статуса и пользователя.
+   * Если задан статус, для которого нет действий, либо их не может выполнять
+   * пользователь с указанным Id - вернёт пустой массив.
    *
    * @param Status $status Статус, для которого нужно вернуть действия
-   * @return array<string, string> Массив действий в формате ['action' => 'label']
+   * @param int $userId Пользователь, который должен сделать действия
+   * @return array<string, ActionAbstract> Массив действий в формате ['action' => actionObject]
    */
-  public function getAvailableActions(Status $status): array
+  public function getAvailableActions(Status $status, int $userId): array
   {
     $availableActions = self::$transitions[$status->value] ?? [];
     $result = [];
 
     foreach ($availableActions as $actionValue => $statusValue) {
-      $actionObj = Action::tryFrom($actionValue);
-      if ($actionObj) {
-        $result[$actionValue] = $actionObj->label();
+      $actionEnum = Action::tryFrom($actionValue);
+      if ($actionEnum && $actionEnum->actionObject()->actionAllowed($userId, $this->customerId, $this->executorId)) {
+        $result[$actionValue] = $actionEnum->actionObject();
       }
     }
 

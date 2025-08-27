@@ -12,17 +12,21 @@ use Romnosk\Models\Task;
 use Romnosk\Models\Status;
 use Romnosk\Models\Action;
 
-$task = new Task(customerId: 1);
+$customerId = 1;
+$executorId = 2;
+$userId = 1;
 
-$task->setCurrentStatus(Status::New);
+$task = new Task($customerId);
+$task->setExecutorId($executorId);
+$task->setCurrentStatus(Status::InWork);
 echo "Текущий статус: " . $task->getCurrentStatus()->label() . "<br>";
 
 // Доступные действия в текущем статусе
-$actions = $task->getAvailableActions($task->getCurrentStatus());
+$actions = $task->getAvailableActions($task->getCurrentStatus(),$userId);
 echo "Доступные действия для статуса ".$task->getCurrentStatus()->label().":<br>";
-foreach ($actions as $action => $rus_action) {
+foreach ($actions as $action => $actionObject) {
   $next = $task->getNextStatus($action);
-  echo "-- {$rus_action} ({$action}) перейдёт в статус: " . $next->label() . "<br>";
+  echo "-- {$actionObject->getLabel()} ({$action}) перейдёт в статус: " . $next->label() . "<br>";
 }
 ?>
 </body>
