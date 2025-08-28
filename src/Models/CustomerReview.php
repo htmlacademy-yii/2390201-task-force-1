@@ -8,7 +8,7 @@ class User
   protected int $customerId;
   protected int $executorId;
   protected int $taskId;
-  protected string $desription;
+  protected string $desсription;
   protected int $rating;
   protected DateTimeImmutable $date;
 
@@ -17,7 +17,7 @@ class User
     int $customerId,
     int $executorId,
     int $taskId,
-    string $desription,
+    string $desсription,
     int $rating
   )
   {
@@ -25,7 +25,7 @@ class User
     $this->customerId = $customerId;
     $this->executorId = $executorId;
     $this->taskId = $taskId;
-    $this->desription = $desription;
+    $this->desсription = $desсription;
     $this->rating = $rating;
     $this->date = new DateTimeImmutable();
   }
