@@ -3,6 +3,7 @@
 namespace Romnosk\Models;
 use Romnosk\Models\Status;
 use Romnosk\Models\Action;
+use Romnosk\Exceptions\InvalidStatusException;
 
 class Task
 {
@@ -85,6 +86,10 @@ class Task
    */
   public function getAvailableActions(Status $status, int $userId): array
   {
+    if (!in_array($status, Status::cases(), true)) {
+      throw new InvalidStatusException('Получен некорректный статус.');
+    }
+
     $availableActions = self::$transitions[$status->value] ?? [];
     $result = [];
 
