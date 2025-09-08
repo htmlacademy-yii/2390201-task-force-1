@@ -27,7 +27,8 @@ CREATE TABLE towns (
 
 CREATE TABLE specializations (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(128) NOT NULL
+  name VARCHAR(128) NOT NULL,
+  icon VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE executor_specializing (
