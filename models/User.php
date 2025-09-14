@@ -2,103 +2,82 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+use yii\db\ActiveRecord;
+
+/**
+ * This is the model class for table "users".
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property int $town_id
+ * @property bool $is_executor
+ * @property string $reg_date
+ * @property string|null $avatar
+ * @property string|null $birth_date
+ * @property string|null $phone
+ * @property string|null $telegram
+ * @property string|null $information
+ * @property int|null $rating
+ */
+class User extends ActiveRecord
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
-
     /**
      * {@inheritdoc}
      */
-    public static function findIdentity($id)
+    public static function tableName()
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return 'users';
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function rules()
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+      return [
+        [['name', 'email', 'password', 'town_id', 'is_executor'], 'required'],
+        [['town_id', 'rating'], 'integer'],
+        [['is_executor'], 'boolean'],
+        [['reg_date', 'birth_date'], 'safe'],
+        [['name', 'avatar', 'phone', 'telegram'], 'string', 'max' => 256],
+        [['email'], 'string', 'max' => 128],
+        [['password'], 'string', 'max' => 128],
+        [['information'], 'string', 'max' => 1024],
+        [['email'], 'unique'],
+        [['email'], 'email'],
+      ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function attributeLabels()
     {
-        return $this->id;
+      return [
+        'id' => 'ID',
+        'name' => 'Ф.И.О.',
+        'email' => 'Email',
+        'password' => 'Пароль',
+        'town_id' => 'Город',
+        'is_executor' => 'Является исполнителем',
+        'reg_date' => 'Дата регистрации',
+        'avatar' => 'Аватар',
+        'birth_date' => 'Дата рождения',
+        'phone' => 'Телефон',
+        'telegram' => 'Telegram',
+        'information' => 'Информация',
+        'rating' => 'Рейтинг',
+      ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAuthKey()
-    {
-        return $this->authKey;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function validateAuthKey($authKey)
-    {
-        return $this->authKey === $authKey;
-    }
-
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
-     */
-    public function validatePassword($password)
-    {
-        return $this->password === $password;
-    }
+  /**
+   * Связь с моделью Town
+   */
+  public function getTown()
+  {
+    return $this->hasOne(Town::className(), ['id' => 'town_id']);
+  }
 }
