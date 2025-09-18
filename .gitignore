@@ -38,3 +38,5 @@ tests/_support/_generated
 *.psd
 run.sh
 
+#Конфигурация БД
+/config/db.php
