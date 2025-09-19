@@ -10,7 +10,7 @@ class TasksController extends Controller
   public function actionIndex()
   {
     $tasks = Task::find()
-      ->where(['is', 'executor_id', null])
+      ->where(['executor_id' => null])
       ->orderBy(['date' => SORT_DESC])
       ->all();
 
