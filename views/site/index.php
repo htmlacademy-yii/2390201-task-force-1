@@ -4,3 +4,4 @@
 
 $this->title = 'My Yii Application';
 ?>
+<h1>Task Force - главная страница</h1>

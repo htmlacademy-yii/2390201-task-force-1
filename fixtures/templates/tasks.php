@@ -1,0 +1,30 @@
+<?php
+/**
+ * @var $faker \Faker\Generator
+ * @var $index integer
+ */
+
+$faker = \Faker\Factory::create();
+$faker->addProvider(new \Faker\Provider\ru_RU\Person($faker));
+$faker->addProvider(new \Faker\Provider\ru_RU\Address($faker));
+$faker->addProvider(new \Faker\Provider\ru_RU\Company($faker));
+$faker->addProvider(new \Faker\Provider\ru_RU\Text($faker));
+
+$specializationIds = [1,2,3,4,5,6,7,8];
+$locationIds = [1,2,3,4,5,6,7,8];
+$customerIds = [1,2,3,4];
+$executorIds = [5,6,7,8];
+$statusIds = [1,2];
+
+return [
+  'name' => $faker->sentence(5),
+  'description' => $faker->paragraph(1),
+  'specializing_id' => $specializationIds[array_rand($specializationIds)],
+  'location_id' => $locationIds[array_rand($locationIds)],
+  'budget' => $faker->numberBetween(500, 20000),
+  'deadline' => $faker->dateTimeBetween('+1 week', '+2 months')->format('Y-m-d H:i:s'),
+  'customer_id' => $customerIds[array_rand($customerIds)], // is_executor = false
+  'executor_id' => $faker->optional()->randomElement($executorIds), // is_executor = true
+  'status_id' => $statusIds[array_rand($statusIds)],
+  'date' => $faker->dateTimeBetween('-30 days', 'now')->format('Y-m-d H:i:s'),
+];
