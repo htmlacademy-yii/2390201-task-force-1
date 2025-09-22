@@ -1228,6 +1228,13 @@ input[type=checkbox] {
   margin-right: 15px;
   margin-left: 5px; }
 
+.checkbox-wrapper label {
+  line-height: 25px;
+  cursor: pointer; }
+
+.checkbox-wrapper label input[type=checkbox] {
+  margin-top: 20px; }
+
 .control-label {
   line-height: 25px;
   cursor: pointer; }

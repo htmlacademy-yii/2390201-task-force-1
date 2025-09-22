@@ -1,6 +1,8 @@
 <?php
 use yii\helpers\Html;
-use yii\widgets\ListView;
+use yii\helpers\ArrayHelper;
+use yii\widgets\ActiveForm;
+use yii\helpers\Url;
 ?>
 
 <div class="left-column">
@@ -48,39 +50,48 @@ use yii\widgets\ListView;
 
 <div class="right-column">
   <div class="right-card black">
-    <div class="search-form">
-      <form>
-        <h4 class="head-card">Категории</h4>
-        <div class="form-group">
+    <?php $form = ActiveForm::begin([
+        'method' => 'get',
+        'action' => Url::to(['tasks/index']),
+        'options' => ['class' => 'search-form']
+    ]); ?>
+
+      <h4 class="head-card">Категории</h4>
+      <div class="form-group">
           <div class="checkbox-wrapper">
-            <label class="control-label" for="сourier-services">
-              <input type="checkbox" id="сourier-services" checked>
-              Курьерские услуги</label>
-            <label class="control-label" for="cargo-transportation">
-              <input id="cargo-transportation" type="checkbox">
-              Грузоперевозки</label>
-            <label class="control-label" for="translations">
-              <input id="translations" type="checkbox">
-              Переводы</label>
+          <?= $form->field($taskFilterForm, 'specializations')
+            ->label(false)
+            ->checkboxList(ArrayHelper::map($specializations, 'id', 'rus_name'))
+          ?>
           </div>
-        </div>
-        <h4 class="head-card">Дополнительно</h4>
-        <div class="form-group">
-          <label class="control-label" for="without-performer">
-            <input id="without-performer" type="checkbox" checked>
-            Без исполнителя</label>
-        </div>
-        <h4 class="head-card">Период</h4>
-        <div class="form-group">
-          <label for="period-value"></label>
-          <select id="period-value">
-            <option>1 час</option>
-            <option>12 часов</option>
-            <option>24 часа</option>
-          </select>
-        </div>
-        <input type="submit" class="button button--blue" value="Искать">
-      </form>
-    </div>
+      </div>
+      <h4 class="head-card">Дополнительно</h4>
+      <div class="form-group">
+        <?= $form->field($taskFilterForm, 'remote')->checkbox([
+          'label' => 'Удалённая работа',
+          'uncheck' => null,
+        ]) ?>
+
+        <?= $form->field($taskFilterForm, 'no_executor')->checkbox([
+          'label' => 'Без откликов',
+          'uncheck' => null,
+        ]) ?>
+      </div>
+
+      <h4 class="head-card">Период</h4>
+      <div class="form-group">
+        <?= $form->field($taskFilterForm, 'period')->dropDownList([
+          '-1 hour' => '1 час',
+          '-12 hours' => '12 часов',
+          '-24 hours' => '24 часа',
+          '-365 days' => 'За год',
+        ], ['prompt' => 'Выберите период']) ?>
+      </div>
+
+      <div class="form-group">
+        <?= Html::submitButton('Искать', ['class' => 'button button--blue']) ?>
+      </div>
+
+    <?php ActiveForm::end(); ?>
   </div>
 </div>
