@@ -28,7 +28,7 @@ CREATE TABLE towns (
 CREATE TABLE specializations (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
-  icon VARCHAR(128) NOT NULL
+  rus_name VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE executor_specializing (
@@ -53,9 +53,10 @@ CREATE TABLE tasks (
 
 CREATE TABLE locations (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255),
+  name VARCHAR(255) NOT NULL,
   latitude DECIMAL(10, 8) NOT NULL,
-  longitude DECIMAL(10, 8) NOT NULL
+  longitude DECIMAL(10, 8) NOT NULL,
+  town_id INT NOT NULL
 );
 
 CREATE TABLE tasks_files (
@@ -66,7 +67,8 @@ CREATE TABLE tasks_files (
 
 CREATE TABLE task_statuses (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(128) NOT NULL
+  name VARCHAR(128) NOT NULL,
+  rus_name VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE task_responces (

@@ -9,9 +9,11 @@ use yii\db\ActiveRecord;
  * Class Location
  *
  * @property int $id
- * @property string|null $name
+ * @property string $name
  * @property string $latitude
  * @property string $longitude
+ *
+ * @property Town $town
  *
  * @package app\models
  */
@@ -31,7 +33,7 @@ class Location extends ActiveRecord
     public function rules()
     {
         return [
-            [['latitude', 'longitude'], 'required'],
+            [['name', 'latitude', 'longitude', 'town_id'], 'required'],
             [['name'], 'string', 'max' => 255],
         ];
     }
@@ -46,6 +48,17 @@ class Location extends ActiveRecord
             'name' => 'Название',
             'latitude' => 'Широта',
             'longitude' => 'Долгота',
+            'town_id' => 'ID города'
         ];
+    }
+
+    /**
+     * Gets query for [[Town]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTown()
+    {
+        return $this->hasOne(Town::class, ['id' => 'town_id']);
     }
 }
