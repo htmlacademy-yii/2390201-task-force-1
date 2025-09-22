@@ -9,7 +9,7 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $name
- * @property string $icon
+ * @property string $rus_name
  *
  * @package app\models
  */
@@ -29,8 +29,8 @@ class Specialization extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'icon'], 'required'],
-            [['name', 'icon'], 'string', 'max' => 128],
+            [['name', 'rus_name'], 'required'],
+            [['name', 'rus_name'], 'string', 'max' => 128],
         ];
     }
 
@@ -42,7 +42,7 @@ class Specialization extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Специализация',
-            'icon' => 'Иконка',
+            'rus_name' => 'Название специализации',
         ];
     }
 }

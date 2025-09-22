@@ -9,6 +9,7 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property string $name
+ * @property string $rus_name
  *
  * @package app\models
  */
@@ -28,8 +29,8 @@ class TaskStatus extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
-            [['name'], 'string', 'max' => 128],
+            [['name', 'rus_name'], 'required'],
+            [['name', 'rus_name'], 'string', 'max' => 128],
         ];
     }
 
@@ -41,6 +42,7 @@ class TaskStatus extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Cтатус задачи',
+            'rus_name' => 'Название статуса',
         ];
     }
 }
