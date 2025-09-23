@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use app\models\Task;
-use app\models\Specialization;
+use app\models\Category;
 use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\Request;
@@ -14,8 +14,8 @@ class TasksController extends Controller
   private function FormFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
   {
     // Фильтр по категориям (специализациям)
-    if (!empty($taskFilterForm->specializations)) {
-      $tasks->andWhere(['in', 'specializing_id', $taskFilterForm->specializations]);
+    if (!empty($taskFilterForm->categories)) {
+      $tasks->andWhere(['in', 'category_id', $taskFilterForm->categories]);
     }
     // Фильтр по удалённой работе (location_id IS NULL)
     if ($taskFilterForm->remote) {
@@ -35,7 +35,7 @@ class TasksController extends Controller
     $taskFilterForm = new TaskFilter();
     $taskFilterForm->load(\Yii::$app->request->get());
 
-    $specializations = Specialization::find()->all();
+    $categories = Category::find()->all();
 
     // Базовый запрос - новые задачи по убыванию.
     $tasks = Task::find()
@@ -49,7 +49,7 @@ class TasksController extends Controller
     return $this->render('index', [
       'tasks' => $tasks,
       'taskFilterForm' => $taskFilterForm,
-      'specializations' => $specializations,
+      'categories' => $categories,
     ]);
   }
 }

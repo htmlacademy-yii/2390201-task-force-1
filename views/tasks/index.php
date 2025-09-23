@@ -20,7 +20,7 @@ use yii\helpers\Url;
         <p class="task-text"><?= Html::encode($task->description) ?></p>
         <div class="footer-task">
           <p class="info-text town-text"><?= Html::encode($task->location->name ?? 'Не указана') ?></p>
-          <p class="info-text category-text"><?= Html::encode($task->specializing->name ?? 'Не указана') ?></p>
+          <p class="info-text category-text"><?= Html::encode($task->category->rus_name ?? 'Не указана') ?></p>
           <a href="#" class="button button--black">Смотреть Задание</a>
         </div>
       </div>
@@ -59,9 +59,9 @@ use yii\helpers\Url;
       <h4 class="head-card">Категории</h4>
       <div class="form-group">
           <div class="checkbox-wrapper">
-          <?= $form->field($taskFilterForm, 'specializations')
+          <?= $form->field($taskFilterForm, 'categories')
             ->label(false)
-            ->checkboxList(ArrayHelper::map($specializations, 'id', 'rus_name'))
+            ->checkboxList(ArrayHelper::map($categories, 'id', 'rus_name'))
           ?>
           </div>
       </div>

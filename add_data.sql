@@ -24,8 +24,8 @@ INSERT INTO locations (name,latitude,longitude,town_id)
 ('Липецк','52.6103027','39.5946266',7),
 ('Нижний Новгород','56.3242093','44.0053948',8);
 
-TRUNCATE TABLE specializations;
-INSERT INTO specializations (name,rus_name)
+TRUNCATE TABLE categories;
+INSERT INTO categories (name,rus_name)
  VALUES
 ('courier','Курьерские услуги'),
 ('clean','Уборка'),

@@ -11,7 +11,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $description
- * @property int $specializing_id
+ * @property int $category_id
  * @property int $location_id
  * @property int|null $budget
  * @property string|null $deadline
@@ -20,7 +20,7 @@ use yii\db\ActiveRecord;
  * @property int $status_id
  * @property string $date
  *
- * @property Specialization $specializing
+ * @property Category $category
  * @property Location $location
  * @property User $customer
  * @property User $executor
@@ -42,9 +42,9 @@ class Task extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'description', 'specializing_id', 'location_id', 'customer_id', 'status_id'], 'required'],
+            [['name', 'description', 'category_id', 'location_id', 'customer_id', 'status_id'], 'required'],
             [['description'], 'string'],
-            [['specializing_id', 'location_id', 'customer_id', 'executor_id', 'status_id'], 'integer'],
+            [['category_id', 'location_id', 'customer_id', 'executor_id', 'status_id'], 'integer'],
             [['budget'], 'integer'],
             [['deadline', 'date'], 'safe'],
             [['name'], 'string', 'max' => 256],
@@ -60,7 +60,7 @@ class Task extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название задачи',
             'description' => 'Описание',
-            'specializing_id' => 'Специализация',
+            'category_id' => 'Специализация',
             'location_id' => 'Местоположение',
             'budget' => 'Бюджет',
             'deadline' => 'Дедлайн',
@@ -72,13 +72,13 @@ class Task extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Specializing]].
+     * Gets query for [[category]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSpecializing()
+    public function getCategory()
     {
-        return $this->hasOne(Specialization::class, ['id' => 'specializing_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 
     /**

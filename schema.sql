@@ -25,23 +25,23 @@ CREATE TABLE towns (
   name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE specializations (
+CREATE TABLE categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
   rus_name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE executor_specializing (
+CREATE TABLE executor_category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  specializing_id INT NOT NULL
+  category_id INT NOT NULL
 );
 
 CREATE TABLE tasks (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(256) NOT NULL,
   description TEXT(2048) NOT NULL,
-  specializing_id INT NOT NULL,
+  category_id INT NOT NULL,
   location_id INT NOT NULL,
   budget INT,
   deadline TIMESTAMP,
