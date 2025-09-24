@@ -6,7 +6,7 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "tasks".
+ * Класс модели для таблицы "tasks".
  *
  * @property int $id
  * @property string $name
@@ -25,6 +25,7 @@ use yii\db\ActiveRecord;
  * @property User $customer
  * @property User $executor
  * @property TaskStatus $status
+ * @property TaskResponce[] $responces
  */
 class Task extends ActiveRecord
 {
@@ -119,5 +120,14 @@ class Task extends ActiveRecord
     public function getStatus()
     {
         return $this->hasOne(TaskStatus::class, ['id' => 'status_id']);
+    }
+
+    /**
+     * Получает перечень откликов на задачу.
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getResponces() {
+        return $this->hasMany(TaskResponce::class, ['task_id' => 'id'])->inverseOf('task');
     }
 }

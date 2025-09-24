@@ -7,11 +7,12 @@ use app\models\Category;
 use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\Request;
+use yii\web\NotFoundHttpException;
 
 class TasksController extends Controller
 {
   // Отработка условий выбора задач по фильтрам
-  private function FormFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
+  private function TasksFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
   {
     // Фильтр по категориям (специализациям)
     if (!empty($taskFilterForm->categories)) {
@@ -30,6 +31,7 @@ class TasksController extends Controller
     $tasks->andWhere(['>=', 'date', date('Y-m-d H:i:s', strtotime($interval))]);
   }
 
+  // Просмотр списка новых задач с возможностью фильтрации
   public function actionIndex()
   {
     $taskFilterForm = new TaskFilter();
@@ -42,7 +44,7 @@ class TasksController extends Controller
       ->where(['status_id' => 1])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
-    $this->FormFiltering($taskFilterForm, $tasks);
+    $this->TasksFiltering($taskFilterForm, $tasks);
     // Получаем все задачи с применёнными фильтрами
     $tasks = $tasks->all();
 
@@ -50,6 +52,20 @@ class TasksController extends Controller
       'tasks' => $tasks,
       'taskFilterForm' => $taskFilterForm,
       'categories' => $categories,
+    ]);
+  }
+
+  // Просмотр задачи с ID = $id
+  public function actionView(int $id)
+  {
+    $task = Task::findOne($id);
+
+    if (!$task) {
+      throw new NotFoundHttpException('Задача с id='.$id.' не найдена.');
+    }
+
+    return $this->render('view', [
+      'task' => $task
     ]);
   }
 }

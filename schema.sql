@@ -73,6 +73,7 @@ CREATE TABLE task_statuses (
 
 CREATE TABLE task_responces (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
   executor_id INT NOT NULL,
   description TEXT(1024),
   budget INT NOT NULL,
