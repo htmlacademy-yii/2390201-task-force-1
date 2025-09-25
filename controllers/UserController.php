@@ -9,7 +9,7 @@ use yii\web\NotFoundHttpException;
 class UserController extends Controller
 {
   // Просмотр информации о пользователе с ID=$id
-  public function actionIndex(int $id)
+  public function actionView(int $id)
   {
     $user = User::findOne($id);
 
@@ -21,7 +21,7 @@ class UserController extends Controller
       throw new NotFoundHttpException('Пользователь с id='.$id.' не является исполнителем.');
     }
 
-    return $this->render('index', [
+    return $this->render('view', [
       'user' => $user
     ]);
   }
