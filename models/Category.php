@@ -5,7 +5,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "specializations".
+ * This is the model class for table "categories".
  *
  * @property int $id
  * @property string $name
@@ -13,14 +13,14 @@ use yii\db\ActiveRecord;
  *
  * @package app\models
  */
-class Specialization extends ActiveRecord
+class Category extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'specializations';
+        return 'categories';
     }
 
     /**

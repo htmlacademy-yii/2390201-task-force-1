@@ -16,8 +16,7 @@ CREATE TABLE users (
   birth_date TIMESTAMP,
   phone VARCHAR(64),
   telegram VARCHAR(128),
-  information TEXT(1024),
-  rating INT
+  information TEXT(1024)
 );
 
 CREATE TABLE towns (
@@ -25,23 +24,23 @@ CREATE TABLE towns (
   name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE specializations (
+CREATE TABLE categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
   rus_name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE executor_specializing (
+CREATE TABLE executor_category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  specializing_id INT NOT NULL
+  category_id INT NOT NULL
 );
 
 CREATE TABLE tasks (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(256) NOT NULL,
   description TEXT(2048) NOT NULL,
-  specializing_id INT NOT NULL,
+  category_id INT NOT NULL,
   location_id INT NOT NULL,
   budget INT,
   deadline TIMESTAMP,
@@ -71,8 +70,9 @@ CREATE TABLE task_statuses (
   rus_name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE task_responces (
+CREATE TABLE task_responses (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
   executor_id INT NOT NULL,
   description TEXT(1024),
   budget INT NOT NULL,

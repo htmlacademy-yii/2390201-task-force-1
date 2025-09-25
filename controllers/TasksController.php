@@ -3,19 +3,21 @@
 namespace app\controllers;
 
 use app\models\Task;
-use app\models\Specialization;
+use app\models\Category;
 use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\Request;
+use yii\web\NotFoundHttpException;
+use Romnosk\Models\Status;
 
 class TasksController extends Controller
 {
   // Отработка условий выбора задач по фильтрам
-  private function FormFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
+  private function TasksFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
   {
     // Фильтр по категориям (специализациям)
-    if (!empty($taskFilterForm->specializations)) {
-      $tasks->andWhere(['in', 'specializing_id', $taskFilterForm->specializations]);
+    if (!empty($taskFilterForm->categories)) {
+      $tasks->andWhere(['in', 'category_id', $taskFilterForm->categories]);
     }
     // Фильтр по удалённой работе (location_id IS NULL)
     if ($taskFilterForm->remote) {
@@ -30,26 +32,41 @@ class TasksController extends Controller
     $tasks->andWhere(['>=', 'date', date('Y-m-d H:i:s', strtotime($interval))]);
   }
 
+  // Просмотр списка новых задач с возможностью фильтрации
   public function actionIndex()
   {
     $taskFilterForm = new TaskFilter();
     $taskFilterForm->load(\Yii::$app->request->get());
 
-    $specializations = Specialization::find()->all();
+    $categories = Category::find()->all();
 
     // Базовый запрос - новые задачи по убыванию.
     $tasks = Task::find()
-      ->where(['status_id' => 1])
+      ->where(['status_id' => Status::Canceled->id()])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
-    $this->FormFiltering($taskFilterForm, $tasks);
+    $this->TasksFiltering($taskFilterForm, $tasks);
     // Получаем все задачи с применёнными фильтрами
     $tasks = $tasks->all();
 
     return $this->render('index', [
       'tasks' => $tasks,
       'taskFilterForm' => $taskFilterForm,
-      'specializations' => $specializations,
+      'categories' => $categories,
+    ]);
+  }
+
+  // Просмотр задачи с ID = $id
+  public function actionView(int $id)
+  {
+    $task = Task::findOne($id);
+
+    if (!$task) {
+      throw new NotFoundHttpException('Задача с id='.$id.' не найдена.');
+    }
+
+    return $this->render('view', [
+      'task' => $task
     ]);
   }
 }
