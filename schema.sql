@@ -16,8 +16,7 @@ CREATE TABLE users (
   birth_date TIMESTAMP,
   phone VARCHAR(64),
   telegram VARCHAR(128),
-  information TEXT(1024),
-  rating INT
+  information TEXT(1024)
 );
 
 CREATE TABLE towns (
@@ -71,7 +70,7 @@ CREATE TABLE task_statuses (
   rus_name VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE task_responces (
+CREATE TABLE task_responses (
   id INT AUTO_INCREMENT PRIMARY KEY,
   task_id INT NOT NULL,
   executor_id INT NOT NULL,

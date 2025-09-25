@@ -11,6 +11,22 @@ enum Status: string
   case Failed   = 'failed';
 
   /**
+   * Возвращает ID статуса
+   *
+   * @return int
+   */
+  public function id(): int
+  {
+    return match($this) {
+      self::New      => 1,
+      self::Canceled => 2,
+      self::InWork   => 3,
+      self::Done     => 4,
+      self::Failed   => 5,
+    };
+  }
+
+  /**
    * Возвращает отображаемое имя статуса
    *
    * @return string

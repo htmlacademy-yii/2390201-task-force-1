@@ -5,7 +5,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * Класс модели для таблицы "task_responces".
+ * Класс модели для таблицы "task_responses".
  *
  * @property int $id
  * @property int $task_id
@@ -15,14 +15,14 @@ use yii\db\ActiveRecord;
  * @property bool $accepted
  * @property \DateTimeInterface $date
  */
-class TaskResponce extends ActiveRecord
+class TaskResponse extends ActiveRecord
 {
   /**
    * {@inheritdoc}
    */
   public static function tableName()
   {
-    return 'task_responces';
+    return 'task_responses';
   }
 
   /**

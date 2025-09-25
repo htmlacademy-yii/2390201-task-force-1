@@ -5,20 +5,20 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * This is the model class for table "executor_specializing".
+ * This is the model class for table "executor_category".
  *
  * @property int $id
  * @property int $user_id
  * @property int $specializing_id
   */
-class ExecutorSpecializing extends ActiveRecord
+class ExecutorCategory extends ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'executor_specializing';
+        return 'executor_category';
     }
 
     /**
@@ -27,8 +27,8 @@ class ExecutorSpecializing extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'specializing_id'], 'required'],
-            [['user_id', 'specializing_id'], 'integer'],
+            [['user_id', 'category_id'], 'required'],
+            [['user_id', 'category_id'], 'integer'],
         ];
     }
 
@@ -40,12 +40,12 @@ class ExecutorSpecializing extends ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'ID Пользователя',
-            'specializing_id' => 'ID Специализации',
+            'category_id' => 'ID Специализации',
         ];
     }
 
     /**
-     * Gets the related User.
+     * Получает соответствующего пользователя - связь с моделью User
      *
      * @return \yii\db\ActiveQuery
      */
@@ -55,12 +55,12 @@ class ExecutorSpecializing extends ActiveRecord
     }
 
     /**
-     * Gets the related Specializing.
+     * Получает соответствующую категорию - связь с моделью Category.
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSpecializing()
+    public function getCategory()
     {
-        return $this->hasOne(Specialization::class, ['id' => 'specializing_id']);
+        return $this->hasOne(Category::class, ['id' => 'category_id']);
     }
 }

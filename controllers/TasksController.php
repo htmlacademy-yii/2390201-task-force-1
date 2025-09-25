@@ -8,6 +8,7 @@ use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\Request;
 use yii\web\NotFoundHttpException;
+use Romnosk\Models\Status;
 
 class TasksController extends Controller
 {
@@ -41,7 +42,7 @@ class TasksController extends Controller
 
     // Базовый запрос - новые задачи по убыванию.
     $tasks = Task::find()
-      ->where(['status_id' => 1])
+      ->where(['status_id' => Status::Canceled->id()])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
     $this->TasksFiltering($taskFilterForm, $tasks);

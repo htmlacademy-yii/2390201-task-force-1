@@ -57,26 +57,36 @@ INSERT INTO task_statuses (name,rus_name)
 ('done','Выполнено'),
 ('failed','Провалено');
 
-TRUNCATE TABLE task_responces;
-INSERT INTO task_responces (task_id, executor_id, description, budget, accepted, date)
+TRUNCATE TABLE task_responses;
+INSERT INTO task_responses (task_id, executor_id, description, budget, accepted, date)
  VALUES
 (1,4,'Всё будет сделано в лучшем виде',2100, false,'2025-09-23 10:00:00'),
 (1,5,'Всё будет сделано в наилучшем виде',2090, false,'2025-09-23 11:00:00'),
 (1,6,'Всё будет сделано в самом лучшем виде',2080, false,'2025-09-23 12:00:00');
 
 TRUNCATE TABLE users;
-INSERT INTO users (name, email, password, town_id, is_executor, reg_date, avatar, birth_date, phone, telegram, information, rating)
+INSERT INTO users (name, email, password, town_id, is_executor, reg_date, avatar, birth_date, phone, telegram, information)
  VALUES
-('Заказчик 1','c1@example.com', '',1, false,'2025-08-01','img/man-blond.jpg','2000-01-01','+71110987654','tg-c1','Заказчик 1 - информация', 0),
-('Заказчик 2','c2@example.com', '',1, false,'2025-08-01','img/man-brune.jpg','2000-01-01','+71110987653','tg-c2','Заказчик 2 - информация', 0),
-('Заказчик 3','c3@example.com', '',1, false,'2025-08-01','img/man-coat.png','2000-01-01','+71110987652','tg-c3','Заказчик 3 - информация', 0),
-('Исполнитель 1','e1@example.com', '',1, true,'2025-08-01','img/man-glasses.png','2000-01-01','+71110987659','tg-e1','Исполнитель 1 - информация', 450),
-('Исполнитель 2','e2@example.com', '',1, true,'2025-08-01','img/man-hat.png','2000-01-01','+71110987658','tg-e2','Исполнитель 2 - информация', 390),
-('Исполнитель 3','e3@example.com', '',1, true,'2025-08-01','img/man-sweater.png','2000-01-01','+71110987657','tg-e3','Исполнитель 3 - информация', 470);
+('Заказчик 1','c1@example.com', '',1, false,'2025-08-01','img/man-blond.jpg','2000-01-01','+71110987654','tg-c1','Заказчик 1 - информация'),
+('Заказчик 2','c2@example.com', '',1, false,'2025-08-01','img/man-brune.jpg','2000-01-01','+71110987653','tg-c2','Заказчик 2 - информация'),
+('Заказчик 3','c3@example.com', '',1, false,'2025-08-01','img/man-coat.png','2000-01-01','+71110987652','tg-c3','Заказчик 3 - информация'),
+('Исполнитель 1','e1@example.com', '',1, true,'2025-08-01','img/man-glasses.png','2000-01-01','+71110987659','tg-e1','Исполнитель 1 - информация'),
+('Исполнитель 2','e2@example.com', '',1, true,'2025-08-01','img/man-hat.png','2000-01-01','+71110987658','tg-e2','Исполнитель 2 - информация'),
+('Исполнитель 3','e3@example.com', '',1, true,'2025-08-01','img/man-sweater.png','2000-01-01','+71110987657','tg-e3','Исполнитель 3 - информация');
+
+-- удалили из таблицы users столбец rating
+-- ALTER TABLE users DROP COLUMN rating;
 
 TRUNCATE TABLE customer_reviews;
 INSERT INTO customer_reviews (customer_id, executor_id, task_id, description, rating, date)
  VALUES
-(1,4,12,'Всё было сделано в лучшем виде', 450,'2025-09-23 10:00:00'),
+(1,4,12,'Всё было сделано в лучшем виде', 500,'2025-09-23 10:00:00'),
 (2,4,1,'Всё было сделано нормально', 400, '2025-09-23 11:00:00'),
 (1,5,11,'Всё было сделано в самом лучшем виде', 500,'2025-09-23 12:00:00');
+
+TRUNCATE TABLE executor_category;
+INSERT INTO executor_category (user_id, category_id)
+ VALUES
+(4,1),(4,3),(4,5),
+(5,4),(5,6),(5,8),
+(6,2),(6,3);

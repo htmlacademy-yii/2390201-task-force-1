@@ -5,33 +5,33 @@ use yii\helpers\Url;
 <main class="main-content container">
   <div class="left-column">
     <div class="head-wrapper">
-        <h3 class="head-main"><?=Html::encode($task->name)?></h3>
-        <p class="price price--big"><?=Html::encode($task->budget)?> ₽</p>
+      <h3 class="head-main"><?=Html::encode($task->name)?></h3>
+      <p class="price price--big"><?=Html::encode($task->budget)?> ₽</p>
     </div>
     <p class="task-description"><?=Html::encode($task->description)?></p>
     <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
     <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
     <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
     <div class="task-map">
-        <img class="map" src="img/map.png"  width="725" height="346" alt="Новый арбат, 23, к. 1">
-        <p class="map-address town">Москва</p>
-        <p class="map-address">Новый арбат, 23, к. 1</p>
+      <img class="map" src="img/map.png"  width="725" height="346" alt="Новый арбат, 23, к. 1">
+      <p class="map-address town">Москва</p>
+      <p class="map-address">Новый арбат, 23, к. 1</p>
     </div>
     <h4 class="head-regular">Отклики на задание</h4>
-    <?php foreach($task->responces as $responce): ?>
+    <?php foreach($task->responses as $response): ?>
       <div class="response-card">
-        <img class="customer-photo" src="<?=Html::encode($responce->executor->avatar)?>" width="146" height="156" alt="Фото заказчиков">
+        <img class="customer-photo" src="<?=Html::encode($response->executor->avatar)?>" width="146" height="156" alt="Фото заказчиков">
         <div class="feedback-wrapper">
-            <a href="#" class="link link--block link--big"><?=Html::encode($responce->executor->name)?></a>
+            <a href="#" class="link link--block link--big"><?=Html::encode($response->executor->name)?></a>
             <div class="response-wrapper">
               <div class="stars-rating small"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
-              <p class="reviews"><?=$responce->executor->reviewsCount?> отзывов <b>рейтинг</b></p>
+              <p class="reviews"><?=$response->executor->reviewsCount?> отзывов <b>рейтинг</b></p>
             </div>
-            <p class="response-message"><?=Html::encode($responce->description)?></p>
+            <p class="response-message"><?=Html::encode($response->description)?></p>
         </div>
         <div class="feedback-wrapper">
-          <p class="info-text"><span class="current-time"></span><?=Html::encode($responce->date)?></p>
-          <p class="price price--small"><?=Html::encode($responce->budget)?> ₽</p>
+          <p class="info-text"><span class="current-time"></span><?=Html::encode($response->date)?></p>
+          <p class="price price--small"><?=Html::encode($response->budget)?> ₽</p>
         </div>
         <div class="button-popup">
           <a href="#" class="button button--blue button--small">Принять</a>
