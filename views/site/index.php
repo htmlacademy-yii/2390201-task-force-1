@@ -4,4 +4,6 @@
 
 $this->title = 'My Yii Application';
 ?>
-<h1>Task Force - главная страница</h1>
+<main id="main" class="main-content container" role="main">
+  <h1>Task Force - главная страница</h1>
+</main>
