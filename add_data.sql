@@ -74,6 +74,9 @@ INSERT INTO users (name, email, password, town_id, is_executor, reg_date, avatar
 ('Исполнитель 2','e2@example.com', '',1, true,'2025-08-01','img/man-hat.png','2000-01-01','+71110987658','tg-e2','Исполнитель 2 - информация'),
 ('Исполнитель 3','e3@example.com', '',1, true,'2025-08-01','img/man-sweater.png','2000-01-01','+71110987657','tg-e3','Исполнитель 3 - информация');
 
+-- Создаёт уникальный индекс на таблицу users по полю email
+CREATE UNIQUE INDEX idx_email_unique ON users (email);
+
 -- удалили из таблицы users столбец rating
 -- ALTER TABLE users DROP COLUMN rating;
 
