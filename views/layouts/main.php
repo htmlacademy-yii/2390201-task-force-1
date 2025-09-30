@@ -32,27 +32,30 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <?php $this->beginBody() ?>
 
 <header id="header" class="page-header">
-    <nav class="main-nav">
-        <a href='#' class="header-logo">
-            <img class="logo-image" src="img/logotype.png" width=227 height=60 alt="taskforce">
-        </a>
-        <div class="nav-wrapper">
-            <ul class="nav-list">
-                <li class="list-item list-item--active">
-                    <a class="link link--nav" >Новое</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Мои задания</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Создать задание</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Настройки</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+  <nav class="main-nav">
+    <a href='#' class="header-logo">
+      <img class="logo-image" src="img/logotype.png" width=227 height=60 alt="taskforce">
+    </a>
+    <?php if (Yii::$app->controller->route !== 'signup/index'): ?>
+      <div class="nav-wrapper">
+          <ul class="nav-list">
+              <li class="list-item list-item--active">
+                  <a class="link link--nav" >Новое</a>
+              </li>
+              <li class="list-item">
+                  <a href="#" class="link link--nav">Мои задания</a>
+              </li>
+              <li class="list-item">
+                  <a href="#" class="link link--nav">Создать задание</a>
+              </li>
+              <li class="list-item">
+                  <a href="#" class="link link--nav">Настройки</a>
+              </li>
+          </ul>
+      </div>
+    <?php endif; ?>
+  </nav>
+  <?php if (Yii::$app->controller->route !== 'signup/index'): ?>
     <div class="user-block">
         <a href="#">
             <img class="user-photo" src="img/man-glasses.png" width="55" height="55" alt="Аватар">
@@ -74,6 +77,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             </div>
         </div>
     </div>
+  <?php endif; ?>
 </header>
 
 <?= $content ?>
