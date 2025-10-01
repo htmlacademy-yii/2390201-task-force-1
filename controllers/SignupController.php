@@ -28,11 +28,14 @@ class SignupController extends Controller
   // Регистрация нового пользователя
   public function actionIndex()
   {
-    $signupForm = new SignupForm();
+    // Залогиненным пользователям страница регистрации недоступна
+    if (!Yii::$app->user->isGuest) {
+      return $this->redirect(['tasks/index']);
+    }
 
+    $signupForm = new SignupForm();
     if (Yii::$app->request->isPost) {
       $signupForm->load(Yii::$app->request->post());
-
       if ($signupForm->validate()) {
         $user = $this->userFromSignupForm($signupForm);
         $user->save(false);

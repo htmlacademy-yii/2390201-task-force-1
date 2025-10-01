@@ -61,11 +61,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-      //Анонимные пользователи отправляются на страницу лендинга, она же - страница входа
-      if (Yii::$app->user->isGuest) {
-        return $this->redirect(['landing/index']);
-      }
-      return $this->redirect(['tasks/index']);
+        return $this->render('index');
     }
 
     /**
