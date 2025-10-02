@@ -71,7 +71,7 @@ footer {
           align-items: center; }
 
 .page-header {
-  background-color: #1e90ff;
+  /* background-color: #1e90ff; */
   min-height: 80px; }
 
 .page-header__logo {

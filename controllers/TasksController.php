@@ -10,7 +10,7 @@ use yii\web\Request;
 use yii\web\NotFoundHttpException;
 use Romnosk\Models\Status;
 
-class TasksController extends Controller
+class TasksController extends SecuredController
 {
   // Отработка условий выбора задач по фильтрам
   private function TasksFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void

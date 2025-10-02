@@ -6,7 +6,7 @@ use app\models\User;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
-class UserController extends Controller
+class UserController extends SecuredController
 {
   // Просмотр информации о пользователе с ID=$id
   public function actionView(int $id)
@@ -24,5 +24,13 @@ class UserController extends Controller
     return $this->render('view', [
       'user' => $user
     ]);
+  }
+
+  // Выход пользователя с сайта, перенаправление на главную страницу
+  public function actionLogout()
+  {
+    \Yii::$app->user->logout();
+
+    return $this->goHome();
   }
 }
