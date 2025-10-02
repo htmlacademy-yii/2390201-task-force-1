@@ -22,6 +22,7 @@ $config = [
     'user' => [
       'identityClass' => 'app\models\User',
       'enableAutoLogin' => true,
+      'loginUrl' => ['/'], // страница логина - главная (она в контрллере перебрасывает на лендинг)
     ],
     'errorHandler' => [
       'errorAction' => 'site/error',

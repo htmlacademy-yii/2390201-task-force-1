@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 use Romnosk\Models\Status;
 
 /**
@@ -22,7 +23,7 @@ use Romnosk\Models\Status;
  * @property string|null $telegram
  * @property string|null $information
  */
-class User extends ActiveRecord
+class User extends ActiveRecord implements IdentityInterface
 {
   /**
    * {@inheritdoc}
@@ -152,5 +153,70 @@ class User extends ActiveRecord
   public function getCategories()
   {
     return $this->hasMany(ExecutorCategory::className(), ['user_id' => 'id'])->inverseOf('user');
+  }
+
+  /**
+   * Находит пользователя по его ID.
+   *
+   * @param int|string $id ID пользователя.
+   * @return static|null Найденный пользователь или null, если не найден.
+   */
+  public static function findIdentity($id)
+  {
+    return self::findOne($id);
+  }
+
+  /**
+   * Находит пользователя по токену доступа.
+   *
+   * @param string $token Токен доступа.
+   * @param mixed $type Тип токена (не используется в текущей реализации).
+   * @return static|null Найденный пользователь или null, если не найден.
+   */
+  public static function findIdentityByAccessToken($token, $type = null)
+  {
+    // TODO: Implement findIdentityByAccessToken() method.
+  }
+
+  /**
+   * Возвращает идентификатор пользователя.
+   *
+   * @return int ID пользователя.
+   */
+  public function getId()
+  {
+    return $this->getPrimaryKey();
+  }
+
+  /**
+   * Возвращает ключ аутентификации пользователя.
+   *
+   * @return string Ключ аутентификации.
+   */
+  public function getAuthKey()
+  {
+    // TODO: Implement getAuthKey() method.
+  }
+
+  /**
+   * Проверяет, соответствует ли переданный ключ аутентификации ключу пользователя.
+   *
+   * @param string $authKey Переданный ключ аутентификации.
+   * @return bool true, если ключи совпадают, иначе false.
+   */
+  public function validateAuthKey($authKey)
+  {
+    // TODO: Implement validateAuthKey() method.
+  }
+
+  /**
+   * Проверяет корректность пароля пользователя (сравнивает с хэшем из БД).
+   *
+   * @param string $password Введённый пароль.
+   * @return bool true, если пароль верный, иначе false.
+   */
+  public function validatePassword($password)
+  {
+    return Yii::$app->security->validatePassword($password, $this->password);
   }
 }
