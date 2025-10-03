@@ -41,7 +41,7 @@ CREATE TABLE tasks (
   name VARCHAR(256) NOT NULL,
   description TEXT(2048) NOT NULL,
   category_id INT NOT NULL,
-  location_id INT NOT NULL,
+  location_id INT,
   budget INT,
   deadline TIMESTAMP,
   customer_id INT NOT NULL,
@@ -61,7 +61,9 @@ CREATE TABLE locations (
 CREATE TABLE tasks_files (
   id INT AUTO_INCREMENT PRIMARY KEY,
   task_id INT NOT NULL,
-  file_path VARCHAR(256) NOT NULL
+  file_path VARCHAR(256) NOT NULL,
+  file_size INT NOT NULL,
+  user_filename VARCHAR(256) NOT NULL
 );
 
 CREATE TABLE task_statuses (

@@ -2,12 +2,16 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\Task;
 use app\models\Category;
+use app\models\Location;
 use app\models\TaskFilter;
 use yii\web\Controller;
 use yii\web\Request;
+use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use Romnosk\Models\Status;
 
 class TasksController extends SecuredController
@@ -37,7 +41,6 @@ class TasksController extends SecuredController
   {
     $taskFilterForm = new TaskFilter();
     $taskFilterForm->load(\Yii::$app->request->get());
-
     $categories = Category::find()->all();
 
     // Базовый запрос - новые задачи по убыванию.
@@ -60,13 +63,38 @@ class TasksController extends SecuredController
   public function actionView(int $id)
   {
     $task = Task::findOne($id);
-
     if (!$task) {
       throw new NotFoundHttpException('Задача с id='.$id.' не найдена.');
     }
+    return $this->render('view', ['task' => $task]);
+  }
 
-    return $this->render('view', [
-      'task' => $task
+  /**
+   * Добавление новой задачи
+   */
+  public function actionAdd()
+  {
+    if (Yii::$app->user->identity->is_executor) {
+      throw new \yii\web\ForbiddenHttpException('Исполнители не могут создавать новые задачи.');
+    }
+
+    $categories = Category::find()->all();
+    $task = new Task();
+
+    if (Yii::$app->request->isPost) {
+      $task->load(Yii::$app->request->post());
+      $task->files = UploadedFile::getInstancesByName('Task[files]');
+      $task->addHiddenRequiredFields(Yii::$app->user->id);
+      if ($task->validate()) {
+        if ($task->save(false) && $task->saveFiles()) {
+          return $this->redirect(['view', 'id' => $task->id]);
+        }
+      }
+    }
+
+    return $this->render('add', [
+        'task' => $task,
+        'categories' => $categories,
     ]);
   }
 }

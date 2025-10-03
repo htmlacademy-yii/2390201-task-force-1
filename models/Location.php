@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property string $latitude
  * @property string $longitude
+ * @property int $town_id
  *
  * @property Town $town
  *
@@ -19,46 +20,46 @@ use yii\db\ActiveRecord;
  */
 class Location extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'locations';
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public static function tableName()
+  {
+    return 'locations';
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['name', 'latitude', 'longitude', 'town_id'], 'required'],
-            [['name'], 'string', 'max' => 255],
-        ];
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function rules()
+  {
+    return [
+      [['name', 'latitude', 'longitude', 'town_id'], 'required'],
+      [['name'], 'string', 'max' => 255],
+    ];
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Название',
-            'latitude' => 'Широта',
-            'longitude' => 'Долгота',
-            'town_id' => 'ID города'
-        ];
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function attributeLabels()
+  {
+    return [
+      'id' => 'ID',
+      'name' => 'Название',
+      'latitude' => 'Широта',
+      'longitude' => 'Долгота',
+      'town_id' => 'ID города'
+    ];
+  }
 
-    /**
-     * Gets query for [[Town]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTown()
-    {
-        return $this->hasOne(Town::class, ['id' => 'town_id']);
-    }
+  /**
+   * Gets query for [[Town]].
+   *
+   * @return \yii\db\ActiveQuery
+   */
+  public function getTown()
+  {
+    return $this->hasOne(Town::class, ['id' => 'town_id']);
+  }
 }
