@@ -22,7 +22,7 @@ $config = [
     'user' => [
       'identityClass' => 'app\models\User',
       'enableAutoLogin' => true,
-      'loginUrl' => ['/'], // страница логина - главная (она в контрллере перебрасывает на лендинг)
+      'loginUrl' => ['/'], // страница логина - главная (она в контроллере перебрасывает на лендинг)
     ],
     'errorHandler' => [
       'errorAction' => 'site/error',
@@ -39,6 +39,8 @@ $config = [
         [
           'class' => 'yii\log\FileTarget',
           'levels' => ['error', 'warning'],
+          'categories' => ['task-add', 'application'],
+          'logFile' => '@runtime/logs/task-add.log',
         ],
       ],
     ],
