@@ -7,12 +7,13 @@ use app\models\Task;
 use app\models\Category;
 use app\models\Location;
 use app\models\TaskFilter;
+use app\models\TaskResponse;
+use app\models\TaskStatusAndAction;
 use yii\web\Controller;
 use yii\web\Request;
 use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use Romnosk\Models\Status;
 
 class TasksController extends SecuredController
 {
@@ -45,18 +46,14 @@ class TasksController extends SecuredController
 
     // Базовый запрос - новые задачи по убыванию.
     $tasks = Task::find()
-      ->where(['status_id' => Status::Canceled->id()])
+      ->where(['status_id' => TaskStatusAndAction::STATUS_NEW])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
     $this->TasksFiltering($taskFilterForm, $tasks);
     // Получаем все задачи с применёнными фильтрами
     $tasks = $tasks->all();
 
-    return $this->render('index', [
-      'tasks' => $tasks,
-      'taskFilterForm' => $taskFilterForm,
-      'categories' => $categories,
-    ]);
+    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories'));
   }
 
   // Просмотр задачи с ID = $id
@@ -66,7 +63,7 @@ class TasksController extends SecuredController
     if (!$task) {
       throw new NotFoundHttpException('Задача с id='.$id.' не найдена.');
     }
-    return $this->render('view', ['task' => $task]);
+    return $this->render('view', compact('task'));
   }
 
   /**
@@ -75,7 +72,7 @@ class TasksController extends SecuredController
   public function actionAdd()
   {
     if (Yii::$app->user->identity->is_executor) {
-      throw new \yii\web\ForbiddenHttpException('Исполнители не могут создавать новые задачи.');
+      throw new ForbiddenHttpException('Исполнители не могут создавать новые задачи.');
     }
 
     $categories = Category::find()->all();
@@ -92,9 +89,41 @@ class TasksController extends SecuredController
       }
     }
 
-    return $this->render('add', [
-        'task' => $task,
-        'categories' => $categories,
-    ]);
+    return $this->render('add', compact('task','categories'));
+  }
+
+  /**
+   * Принять отклик на задание (назначить исполнителя)
+   */
+  public function actionAcceptResponse(int $id)
+  {
+    $task = Task::findOne($id);
+    $response = TaskResponse::findOne(Yii::$app->request->post('response_id'));
+    if (!$task || !$response || $response->task_id !== $id) {
+      throw new NotFoundHttpException("Задача {$id} или отклик на неё не найдены.");
+    }
+
+    $task->acceptNewTaskResponse(Yii::$app->user->id, $response->executor_id);
+    if(!$task->save(false)){
+      throw new \RuntimeException("Не удалось сохранить запись об исполнителе в БД для задачи {$id}");
+    }
+    return $this->redirect(['view', 'id' => $id]);
+  }
+
+  /**
+   * Отклонить отклик на задание
+   */
+  public function actionDeclineResponse(int $id)
+  {
+    $response = TaskResponse::findOne(Yii::$app->request->post('response_id'));
+    if (!$response || $response->task_id !== $id) {
+      throw new NotFoundHttpException("Отклик на задачу {$id} не найден.");
+    }
+
+    $response->declined = true;
+    if(!$response->save(false)){
+      throw new \RuntimeException("Не удалось сохранить запись об отклонении отклика в БД для задачи {$id}");
+    }
+    return $this->redirect(['view', 'id' => $id]);
   }
 }

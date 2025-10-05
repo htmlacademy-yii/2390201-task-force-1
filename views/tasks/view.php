@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\models\TaskStatusAndAction;
 ?>
 <main class="main-content container">
   <div class="left-column">
@@ -19,25 +20,36 @@ use yii\helpers\Url;
     </div>
     <h4 class="head-regular">Отклики на задание</h4>
     <?php foreach($task->responses as $response): ?>
-      <div class="response-card">
-        <img class="customer-photo" src="<?=Html::encode($response->executor->avatar)?>" width="146" height="156" alt="Фото заказчиков">
-        <div class="feedback-wrapper">
-            <a href="#" class="link link--block link--big"><?=Html::encode($response->executor->name)?></a>
-            <div class="response-wrapper">
-              <div class="stars-rating small"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
-              <p class="reviews"><?=$response->executor->reviewsCount?> отзывов <b>рейтинг</b></p>
+      <?php if(Yii::$app->user->id === $task->customer_id || Yii::$app->user->id === $response->executor->id):?>
+        <div class="response-card">
+          <img class="customer-photo" src="<?=Html::encode($response->executor->avatar)?>" width="146" height="156" alt="Фото заказчиков">
+          <div class="feedback-wrapper">
+              <a href="#" class="link link--block link--big"><?=Html::encode($response->executor->name)?></a>
+              <div class="response-wrapper">
+                <div class="stars-rating small"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
+                <p class="reviews"><?=$response->executor->reviewsCount?> отзывов <b>рейтинг</b></p>
+              </div>
+              <p class="response-message"><?=Html::encode($response->description)?></p>
+          </div>
+          <div class="feedback-wrapper">
+            <p class="info-text"><span class="current-time"></span><?=Html::encode($response->date)?></p>
+            <p class="price price--small"><?=Html::encode($response->budget)?> ₽</p>
+          </div>
+          <?php if (Yii::$app->user->id === $task->customer_id && $task->status_id === TaskStatusAndAction::STATUS_NEW && !$response->declined): ?>
+            <div class="button-popup">
+              <form method="post" action="<?=Url::to(['tasks/accept-response', 'id' => $task->id]) ?>" >
+                <?= \yii\helpers\Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
+                <?= \yii\helpers\Html::hiddenInput('response_id', $response->id) ?>
+                <?= \yii\helpers\Html::submitButton('Принять', ['class' => 'button button--blue button--small']) ?>
+              </form>
+              <form method="post" action="<?=Url::to(['tasks/decline-response', 'id' => $task->id]) ?>" style="display:inline;">
+                <?= \yii\helpers\Html::hiddenInput(\Yii::$app->request->csrfParam, \Yii::$app->request->getCsrfToken()) ?>
+                <?= \yii\helpers\Html::hiddenInput('response_id', $response->id) ?>
+                <?= \yii\helpers\Html::submitButton('Отказать', ['class' => 'button button--orange button--small']) ?>
+              </form>
             </div>
-            <p class="response-message"><?=Html::encode($response->description)?></p>
-        </div>
-        <div class="feedback-wrapper">
-          <p class="info-text"><span class="current-time"></span><?=Html::encode($response->date)?></p>
-          <p class="price price--small"><?=Html::encode($response->budget)?> ₽</p>
-        </div>
-        <div class="button-popup">
-          <a href="#" class="button button--blue button--small">Принять</a>
-          <a href="#" class="button button--orange button--small">Отказать</a>
-        </div>
-      </div>
+          <?php endif; ?>        </div>
+      <?php endif;?>
     <?php endforeach; ?>
   </div>
   <div class="right-column">

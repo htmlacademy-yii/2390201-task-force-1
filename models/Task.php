@@ -4,7 +4,6 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
-use Romnosk\Models\Status;
 
 /**
  * Класс модели для таблицы "tasks".
@@ -199,7 +198,7 @@ class Task extends ActiveRecord
   public function addHiddenRequiredFields(int $customerId): self
   {
     $this->customer_id = $customerId;
-    $this->status_id = Status::New->id();
+    $this->status_id = TaskStatusAndAction::STATUS_NEW;
     $this->date = date('Y-m-d H:i:s');
     return $this;
   }
@@ -237,5 +236,26 @@ class Task extends ActiveRecord
       }
     }
     return true;
+  }
+
+  /**
+   * При подтвержении заказчиком отклика, устанавливает ID исполнителя и статус
+   * "в работе". Проверяет ошибки, на случай, если была подмена данных в POST
+   *
+   * @param int $customerId ID заказчика из сессии
+   * @param int $executorId ID исполнителя из POST
+   * @return $this
+   */
+  public function acceptNewTaskResponse(int $customerId, int $executorId): self
+  {
+    if ($this->customer_id !== $customerId) {
+      throw new ForbiddenHttpException("Только заказчик задачи {$this->id} может принимать на неё отклики.");
+    }
+    if ($this->status_id !== TaskStatusAndAction::STATUS_NEW) {
+      throw new \RuntimeException("Задача {$this->id} не новая, нельзя принять отклик");
+    }
+    $this->executor_id = $executorId;
+    $this->status_id = TaskStatusAndAction::STATUS_IN_WORK;
+    return $this;
   }
 }

@@ -46,7 +46,7 @@ INSERT INTO tasks (name, description, category_id, location_id, budget, deadline
 ('Fugit qui officiis temporibus in ut.','Pariatur omnis sit eos corporis consequuntur at.',8,2,17400,'2025-10-14 14:26:42',3,8,2,'2025-08-25 07:12:26');
 
 -- Гарантируем исполнителя с id=4 у задачи с id=1 после заполнения БД задач (tasks) из сгенерированной фикстуры
-UPDATE tasks SET executor_id = 4 WHERE id = 1;
+UPDATE tasks SET executor_id = null, status_id = 1 WHERE id = 1;
 
 TRUNCATE TABLE task_statuses;
 INSERT INTO task_statuses (name,rus_name)
@@ -64,21 +64,23 @@ INSERT INTO task_responses (task_id, executor_id, description, budget, accepted,
 (1,5,'Всё будет сделано в наилучшем виде',2090, false,'2025-09-23 11:00:00'),
 (1,6,'Всё будет сделано в самом лучшем виде',2080, false,'2025-09-23 12:00:00');
 
+-- Пароли у всех пользователей - 1234
 TRUNCATE TABLE users;
-INSERT INTO users (name, email, password, town_id, is_executor, reg_date, avatar, birth_date, phone, telegram, information)
- VALUES
-('Заказчик 1','c1@example.com', '',1, false,'2025-08-01','img/man-blond.jpg','2000-01-01','+71110987654','tg-c1','Заказчик 1 - информация'),
-('Заказчик 2','c2@example.com', '',1, false,'2025-08-01','img/man-brune.jpg','2000-01-01','+71110987653','tg-c2','Заказчик 2 - информация'),
-('Заказчик 3','c3@example.com', '',1, false,'2025-08-01','img/man-coat.png','2000-01-01','+71110987652','tg-c3','Заказчик 3 - информация'),
-('Исполнитель 1','e1@example.com', '',1, true,'2025-08-01','img/man-glasses.png','2000-01-01','+71110987659','tg-e1','Исполнитель 1 - информация'),
-('Исполнитель 2','e2@example.com', '',1, true,'2025-08-01','img/man-hat.png','2000-01-01','+71110987658','tg-e2','Исполнитель 2 - информация'),
-('Исполнитель 3','e3@example.com', '',1, true,'2025-08-01','img/man-sweater.png','2000-01-01','+71110987657','tg-e3','Исполнитель 3 - информация');
+INSERT INTO `users` VALUES
+(1,'Заказчик 1','c1@example.com','$2y$13$EJG5hcUJ.t98PZC1PlFHDOpDAtiGoP1xNjKjllvql7.nsTAlHx6ba',1,0,'2025-07-31 21:00:00','img/man-blond.jpg','1999-12-31 21:00:00','+71110987654','tg-c1','Заказчик 1 - информация'),
+(2,'Заказчик 2','c2@example.com','$2y$13$tS1xQS0REIcEmX517WK7guidyq5zcX4kDhCQGPG6Hhv0VnfBYhU3G',1,0,'2025-07-31 21:00:00','img/man-brune.jpg','1999-12-31 21:00:00','+71110987653','tg-c2','Заказчик 2 - информация'),
+(3,'Заказчик 3','c3@example.com','$2y$13$0yoaEGticeOiRQL/APnoXOOdorlOdU.vcTGSB2.ODP42dcE10j18.',1,0,'2025-07-31 21:00:00','img/man-coat.png','1999-12-31 21:00:00','+71110987652','tg-c3','Заказчик 3 - информация'),
+(4,'Исполнитель 1','e1@example.com','$2y$13$iWB5oZcnu7CIfn6aUgOqV.QnpyJ6.1bueHCHWXnrHNup5c3pHJCBK',1,1,'2025-07-31 21:00:00','img/man-glasses.png','1999-12-31 21:00:00','+71110987659','tg-e1','Исполнитель 1 - информация'),
+(5,'Исполнитель 2','e2@example.com','$2y$13$WfYuI9hPUq/wOmrSKVhrLe0i85Dns7BIuG9sAMAOUjINhojlWqBl6',1,1,'2025-07-31 21:00:00','img/man-hat.png','1999-12-31 21:00:00','+71110987658','tg-e2','Исполнитель 2 - информация'),
+(6,'Исполнитель 3','e3@example.com','$2y$13$gQgUs2Rqd2fbAPC4jpyecensLe.y6yF.rfBeIiOOMX5Xkk3dcwQsa',1,1,'2025-07-31 21:00:00','img/man-sweater.png','1999-12-31 21:00:00','+71110987657','tg-e3','Исполнитель 3 - информация'),
+(7,'Петр Петров Исполнитель','e4@example.com','$2y$13$G/MA/o45VqVw3ONxZBnQ6u8e.JvBpFjJNKwNZP/RL7bty/pDkwi6y',2,1,'2025-09-26 19:51:58',NULL,NULL,NULL,NULL,NULL),
+(8,'Иван Иванов Заказчик','c4@example.com','$2y$13$PQ5M5A/GB9UhfnBgcE1RBeW8VZRqdvfoi6LicnMhkRmf.WuyTwak.',2,0,'2025-09-26 19:54:00',NULL,NULL,NULL,NULL,NULL);
 
 -- Создаёт уникальный индекс на таблицу users по полю email
 CREATE UNIQUE INDEX idx_email_unique ON users (email);
 
--- удалили из таблицы users столбец rating
--- ALTER TABLE users DROP COLUMN rating;
+-- выгружает дамп таблицы users (запускать не в консоли mysql а в терминале)
+-- mysqldump -u sqladmin -p --no-create-info --skip-triggers --compact taskforce users > users_data.sql
 
 TRUNCATE TABLE customer_reviews;
 INSERT INTO customer_reviews (customer_id, executor_id, task_id, description, rating, date)
