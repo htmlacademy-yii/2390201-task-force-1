@@ -33,8 +33,9 @@ class CustomerReview extends ActiveRecord
   public function rules()
   {
   return [
-    [['customer_id', 'executor_id', 'task_id', 'rating'], 'required'],
-    [['customer_id', 'executor_id', 'task_id', 'rating'], 'integer'],
+    [['customer_id', 'executor_id', 'task_id', 'rating'], 'required', 'message' => 'Поле не может быть пустым'],
+    [['customer_id', 'executor_id', 'task_id'], 'integer', 'message' => 'Поле должно быть целым числом от 1 до 5 (звёзд)'],
+    [['rating'], 'integer', 'min' => 1, 'max' => 5],
     [['description'], 'string', 'max' => 1024],
     [['date'], 'safe'],
   ];
@@ -84,5 +85,24 @@ class CustomerReview extends ActiveRecord
   public function getTask()
   {
     return $this->hasOne(Task::class, ['id' => 'task_id']);
+  }
+
+  /**
+   * При завершении задачи заказчиком, заполняет необходимые параметры отзыва на исполнителя - кроме
+   * description и rating, которые заполняются в форме
+   *
+   * @param int $customerId ID заказчика из сессии
+   * @param int $executorId ID исполнителя из задачи
+   * @param int $taskId ID задачи из формы
+   * @return $this
+   */
+  public function addReview(int $customerId, int $executorId, int $taskId): self
+  {
+    $this->customer_id = $customerId;
+    $this->executor_id = $executorId;
+    $this->task_id = $taskId;
+    $this->rating = $this->rating * 100; // рейтинг в отзывах хранится в виде трёхзначного числа для дальнейшего корректного отображения и вычисления
+    $this->date = date('Y-m-d H:i:s');
+    return $this;
   }
 }
