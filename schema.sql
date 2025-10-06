@@ -79,6 +79,7 @@ CREATE TABLE task_responses (
   description TEXT(1024),
   budget INT NOT NULL,
   accepted BOOLEAN NOT NULL,
+  declined BOOLEAN NOT NULL,
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
