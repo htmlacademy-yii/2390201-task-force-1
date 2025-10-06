@@ -12,8 +12,14 @@ use yii\helpers\ArrayHelper;
 <main class="main-content main-content--center container">
   <div class="add-task-form regular-form">
     <?php $form = ActiveForm::begin([
-      'options' => ['enctype' => 'multipart/form-data']
-    ]); ?>
+        'method' => 'post',
+        'options' => ['enctype' => 'multipart/form-data'],
+        'fieldConfig' => [
+            'template' => "{label}\n{input}\n{error}",
+            'labelOptions' => ['class' => 'control-label'],
+            'errorOptions' => ['class' => 'help-block'],
+        ],
+    ]);?>
 
     <h3 class="head-main">Публикация нового задания</h3>
 

@@ -45,8 +45,9 @@ INSERT INTO tasks (name, description, category_id, location_id, budget, deadline
 ('Maxime perferendis non voluptas sint veritatis nemo saepe.','Deleniti corrupti aliquam in rerum ut illo nam.',7,1,10500,'2026-03-08 04:48:22',2,NULL,1,'2025-09-03 03:23:24'),
 ('Fugit qui officiis temporibus in ut.','Pariatur omnis sit eos corporis consequuntur at.',8,2,17400,'2025-10-14 14:26:42',3,8,2,'2025-08-25 07:12:26');
 
--- Гарантируем исполнителя с id=4 у задачи с id=1 после заполнения БД задач (tasks) из сгенерированной фикстуры
+-- Для отладки по откликам
 UPDATE tasks SET executor_id = null, status_id = 1 WHERE id = 1;
+UPDATE task_responses SET declined = 0, accepted = 0;
 
 TRUNCATE TABLE task_statuses;
 INSERT INTO task_statuses (name,rus_name)

@@ -52,6 +52,17 @@ class TaskStatusAndAction
     self::STATUS_FAILED   => [],
   ];
 
+  protected int $userId;
+  protected int $customerId;
+  protected ?int $executorId;
+
+  public function __construct(int $userId, int $customerId, ?int $executorId)
+  {
+    $this->userId = $userId;
+    $this->customerId = $customerId;
+    $this->executorId = $executorId;
+  }
+
   /**
    * Возвращает статус, в который перейдёт задание после выполнения действия
    *
@@ -59,7 +70,7 @@ class TaskStatusAndAction
    * @param int $currentStatus ID статуса
    * @return int|null ID нового статуса или null, если действие недоступно
    */
-  public static function getNextStatus(int $action, int $currentStatus): ?int {
+  public function getNextStatus(int $action, int $currentStatus): ?int {
     $availableActions = self::$transitions[$currentStatus] ?? [];
 
     if (isset($availableActions[$action])) {
@@ -92,14 +103,13 @@ class TaskStatusAndAction
    * @param int $status ID статуса, для которого нужно вернуть действия
    * @return array Массив действий в формате [action_id => 'display_name']
    */
-  public static function getAvailableActions(int $status, int $userId, int $customerId,
-    ?int $executorId): array {
+  public function getAvailableActions(int $status): array {
     $availableActions = self::$transitions[$status] ?? [];
 
     $result = [];
     foreach ($availableActions as $action => $data) {
       if (isset(self::$actionMap[$action]) &&
-          self::actionAllowed($action, $userId, $customerId, $executorId)) {
+          self::actionAllowed($action, $this->userId, $this->customerId, $this->executorId)) {
         $result[$action] = self::$actionMap[$action];
       }
     }

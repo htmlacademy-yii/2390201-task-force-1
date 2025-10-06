@@ -8,6 +8,7 @@ use app\models\Category;
 use app\models\Location;
 use app\models\TaskFilter;
 use app\models\TaskResponse;
+use app\models\CustomerReview;
 use app\models\TaskStatusAndAction;
 use yii\web\Controller;
 use yii\web\Request;
@@ -61,9 +62,11 @@ class TasksController extends SecuredController
   {
     $task = Task::findOne($id);
     if (!$task) {
-      throw new NotFoundHttpException('Задача с id='.$id.' не найдена.');
+      throw new NotFoundHttpException("Задача {$id} не найдена.");
     }
-    return $this->render('view', compact('task'));
+    $taskResponse = new TaskResponse();     // для попап-формы отклика исполнителя
+    $customerReview = new CustomerReview(); // для попап-формы отзыва заказчика
+    return $this->render('view', compact('task', 'taskResponse', 'customerReview'));
   }
 
   /**
@@ -104,8 +107,9 @@ class TasksController extends SecuredController
     }
 
     $task->acceptNewTaskResponse(Yii::$app->user->id, $response->executor_id);
-    if(!$task->save(false)){
-      throw new \RuntimeException("Не удалось сохранить запись об исполнителе в БД для задачи {$id}");
+    $response->accepted = true;
+    if(!$task->save(false) || !$response->save(false)){
+      throw new \RuntimeException("Не удалось сохранить запись об отклике исполнителя в БД для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
@@ -117,12 +121,65 @@ class TasksController extends SecuredController
   {
     $response = TaskResponse::findOne(Yii::$app->request->post('response_id'));
     if (!$response || $response->task_id !== $id) {
-      throw new NotFoundHttpException("Отклик на задачу {$id} не найден.");
+      throw new NotFoundHttpException("Отклик на задачу {$id} не найден");
     }
 
     $response->declined = true;
     if(!$response->save(false)){
       throw new \RuntimeException("Не удалось сохранить запись об отклонении отклика в БД для задачи {$id}");
+    }
+    return $this->redirect(['view', 'id' => $id]);
+  }
+
+  /**
+   * Исполнителю отказаться от задания
+   */
+  public function actionDecline(int $id)
+  {
+    $task = Task::findOne($id);
+    if (!$task) {
+      throw new NotFoundHttpException("Задача {$id} не найдена.");
+    }
+
+    $task->executorDecline(Yii::$app->user->id, $task->executor_id);
+    if(!$task->save(false)){
+      throw new \RuntimeException("Не удалось сохранить запись об отказе исполнителя в БД для задачи {$id}");
+    }
+    return $this->redirect(['view', 'id' => $id]);
+  }
+
+  /**
+   * Исполнителю откликнуться на задание
+   */
+  public function actionRespond(int $id)
+  {
+    $taskResponse = new TaskResponse();
+    if(!$taskResponse->load(Yii::$app->request->post())){
+      throw new NotFoundHttpException("Не удалось загрузить параметры отклика на задачу {$id}");
+    }
+
+    $taskResponse->executorRespond($id, Yii::$app->user->id);
+    if(!$taskResponse->save(false)){
+      throw new \RuntimeException("Не удалось сохранить запись об отклике исполнителя в БД для задачи {$id}");
+    }
+    return $this->redirect(['view', 'id' => $id]);
+  }
+
+  /**
+   * Заказчику завершить задание и написать отзыв на исполнителя
+   */
+  public function actionComplete(int $id)
+  {
+    $task = Task::findOne($id);
+    $customerReview = new CustomerReview();
+    if (!$task || !$customerReview->load(Yii::$app->request->post())) {
+      throw new NotFoundHttpException("Задача {$id} не найдена или не удалось загрузить параметры отзыва на исполнителя");
+    }
+
+    $task->completeByCustomer(Yii::$app->user->id);
+    $customerReview->addReview(Yii::$app->user->id, $task->executor_id, $id);
+    if(!$task->save(false) || !$customerReview->save(false)){
+      throw new \RuntimeException("Не удалось сохранить в БД запись об отзыве на исполнителя для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }

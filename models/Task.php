@@ -258,4 +258,43 @@ class Task extends ActiveRecord
     $this->status_id = TaskStatusAndAction::STATUS_IN_WORK;
     return $this;
   }
+
+  /**
+   * При подтвержении заказчиком отклика, устанавливает ID исполнителя и статус
+   * "в работе". Проверяет ошибки, на случай, если была подмена данных в POST
+   *
+   * @param int $userId ID пользователя из сессии
+   * @param int $executorId ID исполнителя задачи из БД
+   * @return $this
+   */
+  public function executorDecline(int $userId, int $executorId): self
+  {
+    if ($this->executor_id !== $userId) {
+      throw new ForbiddenHttpException("Только исполнитель задачи {$this->id} может от неё отказаться");
+    }
+    if ($this->status_id !== TaskStatusAndAction::STATUS_IN_WORK) {
+      throw new \RuntimeException("Задача {$this->id} не в работе, нельзя отказаться");
+    }
+    $this->status_id = TaskStatusAndAction::STATUS_FAILED;
+    return $this;
+  }
+
+  /**
+   * При завершении задачи заказчиком, устанавливает  статус "завершено".
+   * Проверяет ошибки, на случай, если была подмена данных в POST
+   *
+   * @param int $customerId ID заказчика из сессии
+   * @return $this
+   */
+  public function completeByCustomer(int $customerId): self
+  {
+    if ($this->customer_id !== $customerId) {
+      throw new ForbiddenHttpException("Задачу {$this->id} может завершить только её заказчик");
+    }
+    if ($this->status_id !== TaskStatusAndAction::STATUS_IN_WORK) {
+      throw new \RuntimeException("Задача {$this->id} не в работе, нельзя завершить");
+    }
+    $this->status_id = TaskStatusAndAction::STATUS_DONE;
+    return $this;
+  }
 }
