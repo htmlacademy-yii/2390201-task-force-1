@@ -170,8 +170,12 @@ use yii\widgets\ActiveForm;
         'inputOptions' => ['class' => 'enter-form-email input input-middle'],
       ])->passwordInput(['placeholder' => 'Пароль']) ?>
 
-      <button class="button" type="submit">Войти</button>
+      <button class="button" type="submit">Войти на сайт</button>
     <?php ActiveForm::end(); ?>
+
+    <a href="<?= \yii\helpers\Url::to(['/landing/auth', 'authclient' => 'vkontakte']) ?>" class="button button--small">
+        Войти Через VK
+    </a>
     <button class="form-modal-close" type="button">Закрыть</button>
   </section>
 </div>

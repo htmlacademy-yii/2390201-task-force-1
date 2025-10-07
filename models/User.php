@@ -21,6 +21,7 @@ use Romnosk\Models\Status;
  * @property string|null $birth_date
  * @property string|null $phone
  * @property string|null $telegram
+ * @property int|null $vk_id
  * @property string|null $information
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -49,6 +50,8 @@ class User extends ActiveRecord implements IdentityInterface
       [['information'], 'string', 'max' => 1024],
       [['email'], 'unique'],
       [['email'], 'email'],
+      [['vk_id'], 'integer'],
+      [['vk_id'], 'unique'],
     ];
   }
 
@@ -69,6 +72,7 @@ class User extends ActiveRecord implements IdentityInterface
       'birth_date' => 'Дата рождения',
       'phone' => 'Телефон',
       'telegram' => 'Telegram',
+      'vk_id' => 'VK ID',
       'information' => 'Информация',
     ];
   }
@@ -218,5 +222,62 @@ class User extends ActiveRecord implements IdentityInterface
   public function validatePassword($password)
   {
     return Yii::$app->security->validatePassword($password, $this->password);
+  }
+
+  /**
+   * Создаёт нового пользователя на основе данных из ВКонтакте.
+   * Вызывается только для найденных в ВК пользователей,
+   * у которых $attributes['id'] !== null и $attributes['email'] !== null
+   *
+   * @param array $attributes Атрибуты, полученные от VK OAuth
+   * @return static|null Созданный пользователь или null в случае ошибки
+   */
+  public static function createFromVk(array $attributes)
+  {
+    $user = new static();
+    $user->vk_id = $attributes['id'];
+    $user->name = ($attributes['first_name'] ?? '') . ' ' . ($attributes['last_name'] ?? '');
+    $user->email = $attributes['email'];
+    $user->password = Yii::$app->security->generateRandomString(60);
+    $user->location_id = 1; // поле локации в модели User обязательно, 1 - по умолчанию
+    $user->is_executor = false;
+    $user->reg_date = date('Y-m-d H:i:s');
+    $user->avatar = $attributes['photo_max'] ?? null;
+
+    // Переопределяем ID локации (города), если город есть в атрибутах и нашёлся в БД локаций
+    if (!empty($attributes['city']['title'])) {
+      $cityName = $attributes['city']['title'];
+      $location = Location::findOne(['name' => $cityName]);
+      $user->location_id = $location ? $location->id : 1;
+    }
+
+    if (!$user->save(false)) {
+      throw new \RuntimeException("Не удалось сохранить запись о пользователе {$user->name} в БД");
+    }
+    return $user;
+  }
+
+  /**
+   * Находит в БД или создаёт пользователя на основе данных, полученных от ВКонтакте.
+   * Вызывается в контроллере LandingController только для найденных в ВК пользователей,
+   * у которых $attributes['id'] !== null
+   *
+   * @param array $attributes Атрибуты, полученные от VK OAuth
+   * @return static|null Экземпляр пользователя или null в случае ошибки
+   */
+  public static function findOrCreateFromVk(array $attributes)
+  {
+    $vkId = $attributes['id'];
+    $email = trim($attributes['email'] ?? '');
+    if ($email === '') {
+      // У пользователя нет ключевого для нас аттрибута email, либо он '', либо null
+      return null;
+    }
+
+    $user = static::findOne(['vk_id' => $vkId]);
+    if ($user === null) {
+      $user = static::createFromVk($attributes);
+    }
+    return $user;
   }
 }

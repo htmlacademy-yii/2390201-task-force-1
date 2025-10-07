@@ -16,6 +16,7 @@ CREATE TABLE users (
   birth_date TIMESTAMP,
   phone VARCHAR(64),
   telegram VARCHAR(128),
+  vk_id INT NULL UNIQUE,
   information TEXT(1024)
 );
 
@@ -86,4 +87,3 @@ CREATE TABLE customer_reviews (
   rating INT NOT NULL,
   date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
