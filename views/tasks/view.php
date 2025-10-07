@@ -6,15 +6,41 @@ use yii\widgets\ActiveForm;
 use app\models\TaskStatusAndAction;
 use app\models\TaskResponse;
 
+// Переменные, необходимые для показа кнопок на странице
 $taskStatusAndAction = new TaskStatusAndAction(Yii::$app->user->id, $task->customer_id, $task->executor_id);
 $taskActions = $taskStatusAndAction->getAvailableActions($task->status_id);
 $executorResponded = in_array(Yii::$app->user->id, ArrayHelper::getColumn($task->responses, 'executor_id'));
-?>
+
+// Действия, необходимые для показа карты из Яндекс API
+$apiKey = Yii::$app->params['yandexGeocoderApiKey'] ?? null;
+$hasLocation = $task->location !== null && $task->location->latitude !== null && $task->location->longitude !== null;
+$showMap = $apiKey && $hasLocation;
+
+if ($showMap) {
+  $latitude = $task->location->latitude;
+  $longitude = $task->location->longitude;
+
+  // Регистрируем скрипт API Яндекс.Карт
+  $apiUrl = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=' . urlencode($apiKey);
+  $this->registerJsFile($apiUrl);
+
+  // Регистрируем инициализацию карты. Блок с картой на странице - <div id="map"></div>
+  $js = <<<JS
+    ymaps.ready(function () {
+      var myMap = new ymaps.Map("map", {
+        center: [$latitude, $longitude],
+        zoom: 15
+      });
+    });
+    JS;
+  $this->registerJs($js, yii\web\View::POS_END);
+}?>
+
 <main class="main-content container">
   <div class="left-column">
     <div class="head-wrapper">
       <h3 class="head-main"><?=Html::encode($task->name)?></h3>
-      <p class="price price--big"><?=Html::encode($task->budget)?>₽</p>
+      <p class="price price--big"><?=Html::encode($task->budget)?>&nbsp;₽</p>
     </div>
     <p class="task-description"><?=Html::encode($task->description)?></p>
     <?= array_key_exists(TaskStatusAndAction::ACTION_RESPOND, $taskActions) && !$executorResponded
@@ -30,9 +56,15 @@ $executorResponded = in_array(Yii::$app->user->id, ArrayHelper::getColumn($task-
       :''
     ?>
     <div class="task-map">
-      <img class="map" src="img/map.png"  width="725" height="346" alt="Новый арбат, 23, к. 1">
-      <p class="map-address town">Москва</p>
-      <p class="map-address">Новый арбат, 23, к. 1</p>
+      <?= $showMap ? '<div class="map" id="map" style="width: 725px; height: 346px;"></div>' : ''?>
+      <?php if($hasLocation):?>
+        <p class="map-address town"><?=Html::encode($task->location->name)?></p>
+        <p class="map-address">Центр города</p>
+      <?php else:?>
+        <p class="map-address town">Задание без локации</p>
+        <p class="map-address">Допускает удалённую работу,</p>
+        <p class="map-address">или заказчик не указал локацию.</p>
+      <?php endif;?>
     </div>
     <h4 class="head-regular">Отклики на задание</h4>
     <?php foreach($task->responses as $response): ?>

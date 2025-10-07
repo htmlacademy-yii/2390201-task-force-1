@@ -32,8 +32,10 @@ use yii\helpers\ArrayHelper;
       ['id' => 'town-user', 'prompt' => 'Выберите категорию']
     )->label('Категория') ?>
 
-    <?= $form->field($task, 'location_id')->textInput(['id' => 'location',
-        'class' => 'location-icon'])->label('Локация') ?>
+    <?= $form->field($task, 'locationName')->textInput([
+      'id' => 'location',
+      'class' => 'location-icon'
+    ])->label('Локация') ?>
 
     <div class="half-wrapper">
       <?= $form->field($task, 'budget')->textInput(['id' => 'budget', 'type' => 'number', 'min' => 1])->label('Бюджет') ?>

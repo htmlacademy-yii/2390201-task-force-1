@@ -70,7 +70,10 @@ class TasksController extends SecuredController
   }
 
   /**
-   * Добавление новой задачи
+   * Добавление новой задачи.
+   *
+   * @return string|\yii\web\Response
+   * @throws \yii\web\ForbiddenHttpException если пользователь — исполнитель
    */
   public function actionAdd()
   {
@@ -81,18 +84,19 @@ class TasksController extends SecuredController
     $categories = Category::find()->all();
     $task = new Task();
 
-    if (Yii::$app->request->isPost) {
-      $task->load(Yii::$app->request->post());
-      $task->files = UploadedFile::getInstancesByName('Task[files]');
-      $task->addHiddenRequiredFields(Yii::$app->user->id);
-      if ($task->validate()) {
-        if ($task->save(false) && $task->saveFiles()) {
-          return $this->redirect(['view', 'id' => $task->id]);
-        }
-      }
+    if (!Yii::$app->request->isPost) {
+      return $this->render('add', compact('task', 'categories'));
     }
 
-    return $this->render('add', compact('task','categories'));
+    $task->load(Yii::$app->request->post());
+    $task->files = UploadedFile::getInstancesByName('Task[files]');
+    $task->addHiddenRequiredFields(Yii::$app->user->id);
+    // Локация заполняется при вызове $task->validate() при валидации поля locationName
+    if ($task->validate() && $task->save(false) && $task->saveFiles()) {
+      return $this->redirect(['view', 'id' => $task->id]);
+    }
+
+    return $this->render('add', compact('task', 'categories'));
   }
 
   /**

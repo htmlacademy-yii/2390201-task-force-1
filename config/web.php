@@ -1,6 +1,10 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
+// $params = require __DIR__ . '/params.php';
+$params = \yii\helpers\ArrayHelper::merge(
+  require __DIR__ . '/params.php',
+  require __DIR__ . '/params.local.php',
+);
 $db = require __DIR__ . '/db.php';
 
 $config = [
@@ -13,7 +17,7 @@ $config = [
   ],
   'components' => [
     'request' => [
-      // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation - прописали в web.local.php
+      // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation - прописан в web.local.php
       'cookieValidationKey' => '',
     ],
     'cache' => [
