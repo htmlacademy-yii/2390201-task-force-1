@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use app\validators\LocationGeocodeValidator;
 
 /**
  * Класс модели для таблицы "tasks".
@@ -37,6 +38,12 @@ class Task extends ActiveRecord
   public $files;
 
   /**
+   * Виртуальное поле для ввода названия локации (города).
+   * @var string|null
+   */
+  public $locationName;
+
+  /**
    * {@inheritdoc}
    */
   public static function tableName()
@@ -61,13 +68,9 @@ class Task extends ActiveRecord
       [['name'], 'validateMinNonWhitespace', 'params' => ['min' => 10]],
       [['description'], 'validateMinNonWhitespace', 'params' => ['min' => 30]],
       [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
-      ['location_id', 'integer', 'message' => 'ID местоположения должен быть целым числом.'],
-      [['location_id'], 'exist',
-          'skipOnError' => true,
-          'targetClass' => Location::class,
-          'targetAttribute' => ['location_id' => 'town_id'],
-          'message' => 'Города с таким ID нет в БД.'
-    ],
+      // Валидация названия локации через геокодер
+      ['locationName', LocationGeocodeValidator::class],
+      ['location_id', 'integer'],
       [['files'], 'file', 'skipOnEmpty' => true, 'maxFiles' => 10],
     ];
   }
@@ -108,8 +111,9 @@ class Task extends ActiveRecord
       'id' => 'ID',
       'name' => 'Название задачи',
       'description' => 'Описание',
-      'category_id' => 'Специализация',
-      'location_id' => 'Местоположение',
+      'category_id' => 'ID Специализации',
+      'location_id' => 'ID Местоположения',
+      'locationName' => 'Местоположение',
       'budget' => 'Бюджет',
       'deadline' => 'Дедлайн',
       'customer_id' => 'Заказчик',
@@ -249,7 +253,7 @@ class Task extends ActiveRecord
   public function acceptNewTaskResponse(int $customerId, int $executorId): self
   {
     if ($this->customer_id !== $customerId) {
-      throw new ForbiddenHttpException("Только заказчик задачи {$this->id} может принимать на неё отклики.");
+      throw new \RuntimeException("Только заказчик задачи {$this->id} может принимать на неё отклики.");
     }
     if ($this->status_id !== TaskStatusAndAction::STATUS_NEW) {
       throw new \RuntimeException("Задача {$this->id} не новая, нельзя принять отклик");
@@ -270,7 +274,7 @@ class Task extends ActiveRecord
   public function executorDecline(int $userId, int $executorId): self
   {
     if ($this->executor_id !== $userId) {
-      throw new ForbiddenHttpException("Только исполнитель задачи {$this->id} может от неё отказаться");
+      throw new \RuntimeException("Только исполнитель задачи {$this->id} может от неё отказаться");
     }
     if ($this->status_id !== TaskStatusAndAction::STATUS_IN_WORK) {
       throw new \RuntimeException("Задача {$this->id} не в работе, нельзя отказаться");
@@ -289,7 +293,7 @@ class Task extends ActiveRecord
   public function completeByCustomer(int $customerId): self
   {
     if ($this->customer_id !== $customerId) {
-      throw new ForbiddenHttpException("Задачу {$this->id} может завершить только её заказчик");
+      throw new \RuntimeException("Задачу {$this->id} может завершить только её заказчик");
     }
     if ($this->status_id !== TaskStatusAndAction::STATUS_IN_WORK) {
       throw new \RuntimeException("Задача {$this->id} не в работе, нельзя завершить");

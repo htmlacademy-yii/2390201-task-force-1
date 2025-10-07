@@ -18,9 +18,10 @@ class SignupController extends Controller
     $user->name = $signupForm->name;
     $user->email = $signupForm->email;
     $user->password = Yii::$app->security->generatePasswordHash($signupForm->password);
-    $user->town_id = $signupForm->town_id;
+    $user->location_id = $signupForm->location_id;
     $user->is_executor = $signupForm->is_executor;
     $user->reg_date = date('Y-m-d H:i:s');
+    $user->avatar = 'img/man-running.png';
 
     return $user;
   }

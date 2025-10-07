@@ -9,7 +9,7 @@ CREATE TABLE users (
   name VARCHAR(256) NOT NULL,
   email VARCHAR(128) NOT NULL UNIQUE,
   password VARCHAR(128) NOT NULL,
-  town_id INT NOT NULL,
+  location_id INT NOT NULL,
   is_executor BOOLEAN NOT NULL,
   reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   avatar VARCHAR(256),
@@ -17,11 +17,6 @@ CREATE TABLE users (
   phone VARCHAR(64),
   telegram VARCHAR(128),
   information TEXT(1024)
-);
-
-CREATE TABLE towns (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE categories (
@@ -55,7 +50,6 @@ CREATE TABLE locations (
   name VARCHAR(255) NOT NULL,
   latitude DECIMAL(10, 8) NOT NULL,
   longitude DECIMAL(10, 8) NOT NULL,
-  town_id INT NOT NULL
 );
 
 CREATE TABLE tasks_files (

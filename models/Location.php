@@ -12,9 +12,6 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property string $latitude
  * @property string $longitude
- * @property int $town_id
- *
- * @property Town $town
  *
  * @package app\models
  */
@@ -34,7 +31,7 @@ class Location extends ActiveRecord
   public function rules()
   {
     return [
-      [['name', 'latitude', 'longitude', 'town_id'], 'required'],
+      [['name', 'latitude', 'longitude'], 'required'],
       [['name'], 'string', 'max' => 255],
     ];
   }
@@ -49,17 +46,29 @@ class Location extends ActiveRecord
       'name' => 'Название',
       'latitude' => 'Широта',
       'longitude' => 'Долгота',
-      'town_id' => 'ID города'
     ];
   }
 
   /**
-   * Gets query for [[Town]].
+   * Находит или создаёт локацию по названию и координатам.
    *
-   * @return \yii\db\ActiveQuery
+   * @param string $name
+   * @param string $latitude
+   * @param string $longitude
+   * @return Location|null
    */
-  public function getTown()
+  public static function findOrCreateByName(string $name, string $latitude, string $longitude): ?self
   {
-    return $this->hasOne(Town::class, ['id' => 'town_id']);
+    $location = static::findOne(['name' => $name]);
+    if ($location) {
+      return $location;
+    }
+
+    $location = new static();
+    $location->name = $name;
+    $location->latitude = $latitude;
+    $location->longitude = $longitude;
+
+    return $location->save() ? $location : null;
   }
 }
