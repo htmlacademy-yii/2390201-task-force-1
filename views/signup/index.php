@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\helpers\ArrayHelper;
-use app\models\Town;
+use app\models\Location;
 ?>
 
 <main class="container container--registration">
@@ -24,8 +24,8 @@ use app\models\Town;
         <div class="half-wrapper">
           <?= $form->field($signupForm, 'email')->textInput(['id' => 'email-user', 'type' => 'email']) ?>
 
-          <?= $form->field($signupForm, 'town_id')->dropDownList(
-            ArrayHelper::map(Town::find()->all(), 'id', 'name'),
+          <?= $form->field($signupForm, 'location_id')->dropDownList(
+            ArrayHelper::map(Location::find()->all(), 'id', 'name'),
             ['id' => 'town-user', 'prompt' => 'Выберите город']
           ) ?>
         </div>

@@ -28,7 +28,7 @@ use yii\helpers\Url;
       </div>
       <div class="bio">
         <p class="head-info">Био</p>
-        <p class="bio-info"><span class="country-info">Россия</span>, <span class="town-info"><?=$user->town->name?></span>, <span class="age-info"><?=$user->birth_date?></span> лет</p>
+        <p class="bio-info"><span class="country-info">Россия</span>, <span class="town-info"><?=$user->location->name?></span>, <span class="age-info"><?=$user->birth_date?></span> лет</p>
       </div>
     </div>
     <?php if($user->customerReviews): ?>

@@ -1,4 +1,24 @@
 # Личный проект «TaskForce»
+Для запуска приложения в директорию config необходимы поместить файлы:
+1. web.local.php который содержит
+<?php
+return [
+  'components' => [
+    'request' => [
+      'cookieValidationKey' => 'ваш_ключ_валидации_cookie',
+    ],
+  ]
+];
+
+2. params.local.php который содержит
+<?php
+return [
+  'yandexGeocoderApiKey' => 'ваш_ключ_API_Геокодера_Яндекс',
+];
+
+допустимы пустые ключи, но тогда соответствующий функционал не будет работать.
+
+В файле config/db.php нужно указать параметры подключения к вашей базе данных MySQL.
 
 * Студент: [Роман Носков](https://htmlacademy.ru/profile/id2390201).
 * Наставник: [Сергей Попов](https://htmlacademy.ru/profile/id1181399).

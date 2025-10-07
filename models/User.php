@@ -14,7 +14,7 @@ use Romnosk\Models\Status;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property int $town_id
+ * @property int $location_id
  * @property bool $is_executor
  * @property string $reg_date
  * @property string|null $avatar
@@ -39,8 +39,8 @@ class User extends ActiveRecord implements IdentityInterface
   public function rules()
   {
     return [
-      [['name', 'email', 'password', 'town_id', 'is_executor'], 'required'],
-      [['town_id'], 'integer'],
+      [['name', 'email', 'password', 'location_id', 'is_executor'], 'required'],
+      [['location_id'], 'integer'],
       [['is_executor'], 'boolean'],
       [['reg_date', 'birth_date'], 'safe'],
       [['name', 'avatar', 'phone', 'telegram'], 'string', 'max' => 256],
@@ -62,7 +62,7 @@ class User extends ActiveRecord implements IdentityInterface
       'name' => 'Ф.И.О.',
       'email' => 'Email',
       'password' => 'Пароль',
-      'town_id' => 'Город',
+      'location_id' => 'Город',
       'is_executor' => 'Является исполнителем',
       'reg_date' => 'Дата регистрации',
       'avatar' => 'Аватар',
@@ -74,11 +74,11 @@ class User extends ActiveRecord implements IdentityInterface
   }
 
   /**
-   * Связь с моделью Town
+   * Связь с моделью Location
    */
-  public function getTown()
+  public function getLocation()
   {
-    return $this->hasOne(Town::className(), ['id' => 'town_id']);
+    return $this->hasOne(Location::className(), ['id' => 'location_id']);
   }
 
   /**
