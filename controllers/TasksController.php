@@ -187,4 +187,78 @@ class TasksController extends SecuredController
     }
     return $this->redirect(['view', 'id' => $id]);
   }
+
+  /**
+   * Добавляет фильтры отбора задач для просмотра, если пользователь - исполнитель
+   */
+  private function ExecutorTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
+  {
+    switch ($status) {
+      case 'overdue':
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK])
+              ->andWhere(['<', 'deadline', date('Y-m-d')]);
+        break;
+      case 'closed':
+        $tasks->andWhere(['in', 'status_id', [
+          TaskStatusAndAction::STATUS_DONE,
+          TaskStatusAndAction::STATUS_FAILED
+        ]]);
+        break;
+      case 'in-progress':
+      default:
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
+        break;
+    }
+  }
+
+  /**
+   * Добавляет фильтры отбора задач для просмотра, если пользователь - заказчик
+   */
+  private function CustomerTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
+  {
+    switch ($status) {
+      case 'in-progress':
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
+        break;
+      case 'closed':
+        $tasks->andWhere(['in', 'status_id', [
+          TaskStatusAndAction::STATUS_CANCELED,
+          TaskStatusAndAction::STATUS_DONE,
+          TaskStatusAndAction::STATUS_FAILED
+        ]]);
+        break;
+      case 'new':
+      default:
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_NEW])
+              ->andWhere(['is', 'executor_id', null]);
+        break;
+    }
+  }
+
+  /**
+   * Отображает задачи текущего пользователя: либо как исполнителя, либо как заказчика.
+   * В представлении передаётся значение фильтра по статусу:
+   * 'in-progress', 'overdue', 'closed' (для исполнителя)
+   * 'new', 'in-progress', 'closed' (для заказчика)
+   *
+   * @param string|null $status фильтр по статусу
+   *
+   * @return string
+   */
+  public function actionMy(?string $status = null)
+  {
+    $user = Yii::$app->user->identity;
+    $tasks = Task::find();
+
+    if ($user->is_executor) {
+      $tasks->andWhere(['executor_id' => $user->id]);
+      $this->ExecutorTasksFiltering($status, $tasks);
+    } else {
+      $tasks->andWhere(['customer_id' => $user->id]);
+      $this->CustomerTasksFiltering($status, $tasks);
+    }
+    $tasks = $tasks->orderBy(['date' => SORT_DESC])->all();
+
+    return $this->render('my', compact('tasks', 'status'));
+  }
 }
