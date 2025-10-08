@@ -59,14 +59,24 @@ use yii\helpers\Url;
 
         <h4 class="head-card">Категории</h4>
         <div class="form-group">
-            <div class="checkbox-wrapper">
+          <div class="checkbox-wrapper">
             <?= $form->field($taskFilterForm, 'categories')
               ->label(false)
-              ->checkboxList(ArrayHelper::map($categories, 'id', 'rus_name'))
+              ->checkboxList(
+                ArrayHelper::map($categories, 'id', 'rus_name'),
+                [
+                  'item' => function ($index, $label, $name, $checked, $value) {
+                    return '<label class="control-label">'
+                      . Html::checkbox($name, $checked, ['value' => $value, 'class' => ''])
+                      . ' ' . Html::encode($label)
+                      . '</label>';
+                  },
+                  'unselect' => null,
+                ]
+              )
             ?>
-            </div>
-        </div>
-        <h4 class="head-card">Дополнительно</h4>
+          </div>
+        </div>        <h4 class="head-card">Дополнительно</h4>
         <div class="form-group">
           <?= $form->field($taskFilterForm, 'remote')->checkbox([
             'label' => 'Удалённая работа',

@@ -15,34 +15,34 @@ use yii\db\ActiveRecord;
  */
 class Category extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'categories';
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public static function tableName()
+  {
+    return 'categories';
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['name', 'rus_name'], 'required'],
-            [['name', 'rus_name'], 'string', 'max' => 128],
-        ];
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function rules()
+  {
+    return [
+      [['name', 'rus_name'], 'required'],
+      [['name', 'rus_name'], 'string', 'max' => 128],
+    ];
+  }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Специализация',
-            'rus_name' => 'Название специализации',
-        ];
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function attributeLabels()
+  {
+    return [
+      'id' => 'ID',
+      'name' => 'Специализация',
+      'rus_name' => 'Название специализации',
+    ];
+  }
 }
