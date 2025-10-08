@@ -172,6 +172,10 @@ use yii\widgets\ActiveForm;
 
       <button class="button" type="submit">Войти</button>
     <?php ActiveForm::end(); ?>
+
+    <a href="<?= \yii\helpers\Url::to(['/landing/auth', 'authclient' => 'vkontakte']) ?>" class="button button--small">
+        ВК
+    </a>
     <button class="form-modal-close" type="button">Закрыть</button>
   </section>
 </div>
