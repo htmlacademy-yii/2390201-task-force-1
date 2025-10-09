@@ -38,7 +38,7 @@ use yii\helpers\ArrayHelper;
     ])->label('Локация') ?>
 
     <div class="half-wrapper">
-      <?= $form->field($task, 'budget')->textInput(['id' => 'budget', 'type' => 'number', 'min' => 1])->label('Бюджет') ?>
+      <?= $form->field($task, 'budget')->textInput(['id' => 'budget', 'class' => 'budget-icon', 'type' => 'number', 'min' => 1])->label('Бюджет') ?>
 
       <?= $form->field($task, 'deadline')->textInput(['id' => 'period-execution', 'type' => 'date'])->label('Срок исполнения') ?>
     </div>

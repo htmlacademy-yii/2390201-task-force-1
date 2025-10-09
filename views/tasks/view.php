@@ -43,7 +43,7 @@ if ($showMap) {
       <p class="price price--big"><?=Html::encode($task->budget)?>&nbsp;₽</p>
     </div>
     <p class="task-description"><?=Html::encode($task->description)?></p>
-    <?= array_key_exists(TaskStatusAndAction::ACTION_RESPOND, $taskActions) && !$executorResponded
+    <?= array_key_exists(TaskStatusAndAction::ACTION_RESPOND, $taskActions) && Yii::$app->user->identity->is_executor && !$executorResponded
       ? '<a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>'
       :''
     ?>
