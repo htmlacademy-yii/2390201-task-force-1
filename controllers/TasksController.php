@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use app\models\Constants;
 use app\models\Task;
 use app\models\Category;
 use app\models\Location;
@@ -15,6 +16,7 @@ use yii\web\Request;
 use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use yii\data\Pagination;
 
 class TasksController extends SecuredController
 {
@@ -45,16 +47,29 @@ class TasksController extends SecuredController
     $taskFilterForm->load(\Yii::$app->request->get());
     $categories = Category::find()->all();
 
-    // Базовый запрос - новые задачи по убыванию.
+    // Базовый запрос - новые задачи, из города пользователя, по убыванию.
     $tasks = Task::find()
       ->where(['status_id' => TaskStatusAndAction::STATUS_NEW])
+      ->andWhere(['or',
+        ['location_id' => Yii::$app->user->identity->location_id ],
+        ['is', 'location_id', null]])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
     $this->TasksFiltering($taskFilterForm, $tasks);
-    // Получаем все задачи с применёнными фильтрами
-    $tasks = $tasks->all();
 
-    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories'));
+    // Создаём пагинацию
+    $pagination = new Pagination([
+      'totalCount' => $tasks->count(),
+      'pageSize' => Constants::TASKS_ON_PAGE,
+    ]);
+
+    // Получаем только нужные записи для текущей страницы
+    $tasks = $tasks
+      ->offset($pagination->offset)
+      ->limit($pagination->limit)
+      ->all();
+
+    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories', 'pagination'));
   }
 
   // Просмотр задачи с ID = $id
@@ -64,9 +79,10 @@ class TasksController extends SecuredController
     if (!$task) {
       throw new NotFoundHttpException("Задача {$id} не найдена.");
     }
+    $taskFiles = $task->getFiles()->all();
     $taskResponse = new TaskResponse();     // для попап-формы отклика исполнителя
     $customerReview = new CustomerReview(); // для попап-формы отзыва заказчика
-    return $this->render('view', compact('task', 'taskResponse', 'customerReview'));
+    return $this->render('view', compact('task', 'taskResponse', 'customerReview', 'taskFiles'));
   }
 
   /**
@@ -186,5 +202,79 @@ class TasksController extends SecuredController
       throw new \RuntimeException("Не удалось сохранить в БД запись об отзыве на исполнителя для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
+  }
+
+  /**
+   * Добавляет фильтры отбора задач для просмотра, если пользователь - исполнитель
+   */
+  private function ExecutorTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
+  {
+    switch ($status) {
+      case 'overdue':
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK])
+              ->andWhere(['<', 'deadline', date('Y-m-d')]);
+        break;
+      case 'closed':
+        $tasks->andWhere(['in', 'status_id', [
+          TaskStatusAndAction::STATUS_DONE,
+          TaskStatusAndAction::STATUS_FAILED
+        ]]);
+        break;
+      case 'in-progress':
+      default:
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
+        break;
+    }
+  }
+
+  /**
+   * Добавляет фильтры отбора задач для просмотра, если пользователь - заказчик
+   */
+  private function CustomerTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
+  {
+    switch ($status) {
+      case 'in-progress':
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
+        break;
+      case 'closed':
+        $tasks->andWhere(['in', 'status_id', [
+          TaskStatusAndAction::STATUS_CANCELED,
+          TaskStatusAndAction::STATUS_DONE,
+          TaskStatusAndAction::STATUS_FAILED
+        ]]);
+        break;
+      case 'new':
+      default:
+        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_NEW])
+              ->andWhere(['is', 'executor_id', null]);
+        break;
+    }
+  }
+
+  /**
+   * Отображает задачи текущего пользователя: либо как исполнителя, либо как заказчика.
+   * В представлении передаётся значение фильтра по статусу:
+   * 'in-progress', 'overdue', 'closed' (для исполнителя)
+   * 'new', 'in-progress', 'closed' (для заказчика)
+   *
+   * @param string|null $status фильтр по статусу
+   *
+   * @return string
+   */
+  public function actionMy(?string $status = null)
+  {
+    $user = Yii::$app->user->identity;
+    $tasks = Task::find();
+
+    if ($user->is_executor) {
+      $tasks->andWhere(['executor_id' => $user->id]);
+      $this->ExecutorTasksFiltering($status, $tasks);
+    } else {
+      $tasks->andWhere(['customer_id' => $user->id]);
+      $this->CustomerTasksFiltering($status, $tasks);
+    }
+    $tasks = $tasks->orderBy(['date' => SORT_DESC])->all();
+
+    return $this->render('my', compact('tasks', 'status'));
   }
 }

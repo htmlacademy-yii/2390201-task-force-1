@@ -5,6 +5,7 @@ use yii\helpers\ArrayHelper;
 use yii\widgets\ActiveForm;
 use app\models\TaskStatusAndAction;
 use app\models\TaskResponse;
+use app\helpers\TaskForceHelper;
 
 // Переменные, необходимые для показа кнопок на странице
 $taskStatusAndAction = new TaskStatusAndAction(Yii::$app->user->id, $task->customer_id, $task->executor_id);
@@ -43,7 +44,7 @@ if ($showMap) {
       <p class="price price--big"><?=Html::encode($task->budget)?>&nbsp;₽</p>
     </div>
     <p class="task-description"><?=Html::encode($task->description)?></p>
-    <?= array_key_exists(TaskStatusAndAction::ACTION_RESPOND, $taskActions) && !$executorResponded
+    <?= array_key_exists(TaskStatusAndAction::ACTION_RESPOND, $taskActions) && Yii::$app->user->identity->is_executor && !$executorResponded
       ? '<a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>'
       :''
     ?>
@@ -72,15 +73,15 @@ if ($showMap) {
         <div class="response-card">
           <img class="customer-photo" src="<?=Html::encode($response->executor->avatar)?>" width="146" height="156" alt="Фото исполнителя">
           <div class="feedback-wrapper">
-            <a href="#" class="link link--block link--big"><?=Html::encode($response->executor->name)?></a>
+            <a href="<?=Url::to(['user/view', 'id'=>$response->executor->id])?>" class="link link--block link--big"><?=Html::encode($response->executor->name)?></a>
             <div class="response-wrapper">
-              <div class="stars-rating small"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
-              <p class="reviews"><?=$response->executor->reviewsCount?> отзывов <b>рейтинг</b></p>
+              <?=TaskForceHelper::renderStarsRating($response->executor->rating, 'small')?>
+              <p class="reviews"><?=$response->executor->reviewsCount?> отзывов</p>
             </div>
             <p class="response-message"><?=Html::encode($response->description)?></p>
           </div>
           <div class="feedback-wrapper">
-            <p class="info-text"><span class="current-time"></span><?=Html::encode($response->date)?></p>
+            <p class="info-text"><span class="current-time"></span><?=Html::encode(TaskForceHelper::humanTimeDiff($response->date))?></p>
             <p class="price price--small"><?=Html::encode($response->budget)?> ₽</p>
           </div>
           <?php if (Yii::$app->user->id === $task->customer_id && $task->status_id === TaskStatusAndAction::STATUS_NEW && !$response->declined): ?>
@@ -108,26 +109,26 @@ if ($showMap) {
         <dt>Категория</dt>
         <dd><?=Html::encode($task->category->rus_name)?></dd>
         <dt>Дата публикации</dt>
-        <dd><?=Html::encode($task->date)?></dd>
+        <dd><?=Html::encode(TaskForceHelper::humanTimeDiff($task->date))?></dd>
         <dt>Срок выполнения</dt>
-        <dd><?=Html::encode($task->deadline)?></dd>
+        <dd><?= Yii::$app->formatter->asDatetime($task->deadline, 'd.m.Y \в HH:mm') ?></dd>
         <dt>Статус</dt>
         <dd><?=Html::encode($task->status->rus_name)?></dd>
       </dl>
     </div>
-    <div class="right-card white file-card">
-      <h4 class="head-card">Файлы задания</h4>
-      <ul class="enumeration-list">
-        <li class="enumeration-item">
-          <a href="#" class="link link--block link--clip">my_picture.jpg</a>
-          <p class="file-size">356 Кб</p>
-        </li>
-        <li class="enumeration-item">
-          <a href="#" class="link link--block link--clip">information.docx</a>
-          <p class="file-size">12 Кб</p>
-        </li>
-      </ul>
-    </div>
+    <?php if(!empty($taskFiles)):?>
+      <div class="right-card white file-card">
+        <h4 class="head-card">Файлы задания</h4>
+        <ul class="enumeration-list">
+        <?php foreach($taskFiles as $file):?>
+          <li class="enumeration-item">
+            <a href="<?=Html::encode($file->file_path)?>" class="link link--block link--clip"><?=Html::encode($file->user_filename)?></a>
+            <p class="file-size"><?=TaskForceHelper::formatBytes($file->file_size)?></p>
+          </li>
+        <?php endforeach;?>
+        </ul>
+      </div>
+    <?php endif;?>
   </div>
 </main>
 <section class="pop-up pop-up--refusal pop-up--close">

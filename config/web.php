@@ -10,6 +10,7 @@ $db = require __DIR__ . '/db.php';
 $config = [
   'id' => 'basic',
   'basePath' => dirname(__DIR__),
+  'language' => 'ru-RU',
   'bootstrap' => ['log'],
   'aliases' => [
       '@bower' => '@vendor/bower-asset',
@@ -49,11 +50,18 @@ $config = [
       ],
     ],
     'db' => $db,
+    'formatter' => [
+      'locale' => 'ru-RU',
+      'timeZone' => 'Europe/Moscow',
+    ],
     /*
     'urlManager' => [
       'enablePrettyUrl' => true,
       'showScriptName' => false,
-      'rules' => [],
+      'rules' => [
+        'tasks/view/<id:\d+>' => 'tasks/view',
+        'user/view/<id:\d+>' => 'user/view',
+      ],
     ],*/
   ],
     'params' => $params,
