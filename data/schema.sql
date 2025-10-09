@@ -1,8 +1,8 @@
-CREATE DATABASE taskforce
+CREATE DATABASE taskforce1009
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
-USE taskforce;
+USE taskforce1009;
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,

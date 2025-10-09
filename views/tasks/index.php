@@ -1,8 +1,9 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
-use yii\widgets\ActiveForm;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 ?>
 
 <main id="main" class="main-content container" role="main">
@@ -14,37 +15,30 @@ use yii\helpers\Url;
       <?php foreach ($tasks as $task): ?>
         <div class="task-card">
           <div class="header-task">
-            <a  href="#" class="link link--block link--big"><?= Html::encode($task->name) ?></a>
-            <p class="price price--task"><?= $task->budget ? $task->budget . ' ₽' : 'Не указан' ?></p>
+            <a  href="<?=Url::to(['tasks/view', 'id' => $task->id])?>" class="link link--block link--big"><?= Html::encode($task->name) ?></a>
+            <p class="price price--task"><?= $task->budget ? $task->budget . ' ₽' : 'Без бюджета' ?></p>
           </div>
           <p class="info-text"><span class="current-time"><?= Yii::$app->formatter->asDate($task->date) ?></span></p>
           <p class="task-text"><?= Html::encode($task->description) ?></p>
           <div class="footer-task">
-            <p class="info-text town-text"><?= Html::encode($task->location->name ?? 'Не указана') ?></p>
+            <p class="info-text town-text"><?= Html::encode($task->location->name ?? 'Без локации') ?></p>
             <p class="info-text category-text"><?= Html::encode($task->category->rus_name ?? 'Не указана') ?></p>
-            <a href="#" class="button button--black">Смотреть Задание</a>
+            <a href="<?=Url::to(['tasks/view', 'id' => $task->id])?>" class="button button--black">Смотреть Задание</a>
           </div>
         </div>
       <?php endforeach; ?>
 
       <div class="pagination-wrapper">
-        <ul class="pagination-list">
-          <li class="pagination-item mark">
-            <a href="#" class="link link--page"></a>
-          </li>
-          <li class="pagination-item">
-            <a href="#" class="link link--page">1</a>
-          </li>
-          <li class="pagination-item pagination-item--active">
-            <a href="#" class="link link--page">2</a>
-          </li>
-          <li class="pagination-item">
-            <a href="#" class="link link--page">3</a>
-          </li>
-          <li class="pagination-item mark">
-            <a href="#" class="link link--page"></a>
-          </li>
-        </ul>
+        <?= LinkPager::widget([
+          'pagination' => $pagination,
+          'options' => ['class' => 'pagination-list'],
+          'linkContainerOptions' => ['class' => 'pagination-item'],
+          'linkOptions' => ['class' => 'link link--page'],
+          'activePageCssClass' => 'pagination-item--active',
+          'disabledPageCssClass' => 'disabled',
+          'prevPageLabel' => '&laquo;',
+          'nextPageLabel' => '&raquo;',
+        ]) ?>
       </div>
     <?php endif; ?>
   </div>
@@ -69,7 +63,7 @@ use yii\helpers\Url;
                     return '<label class="control-label">'
                       . Html::checkbox($name, $checked, ['value' => $value, 'class' => ''])
                       . ' ' . Html::encode($label)
-                      . '</label>';
+                      . '</label><br>';
                   },
                   'unselect' => null,
                 ]

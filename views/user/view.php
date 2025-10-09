@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\helpers\TaskForceHelper;
 ?>
 <main class="main-content container">
   <div class="left-column">
@@ -9,8 +10,8 @@ use yii\helpers\Url;
       <div class="photo-rate">
         <img class="card-photo" src="<?=Html::encode($user->avatar)?>" width="191" height="190" alt="Фото пользователя">
         <div class="card-rate">
-          <div class="stars-rating big"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
-          <span class="current-rate"><?=number_format($user->rating / 100, 2, '.', '')?></span>
+        <?=TaskForceHelper::renderStarsRating($user->rating, 'big')?>
+        <span class="current-rate"><?=number_format($user->rating / 100, 2, '.', '')?></span>
         </div>
       </div>
       <p class="user-description"><?=Html::encode($user->information)?></p>
@@ -28,7 +29,11 @@ use yii\helpers\Url;
       </div>
       <div class="bio">
         <p class="head-info">Био</p>
-        <p class="bio-info"><span class="country-info">Россия</span>, <span class="town-info"><?=$user->location->name?></span>, <span class="age-info"><?=$user->birth_date?></span> лет</p>
+        <p class="bio-info">
+          <span class="country-info">Россия</span>,
+          <span class="town-info"><?=Html::encode($user->location->name)?></span>,
+          <span class="age-info"><?=Html::encode(TaskForceHelper::getAge($user->birth_date))?></span>
+        </p>
       </div>
     </div>
     <?php if($user->customerReviews): ?>
@@ -38,11 +43,11 @@ use yii\helpers\Url;
           <img class="customer-photo" src="<?=Html::encode($review->customer->avatar)?>" width="120" height="127" alt="Фото заказчиков">
           <div class="feedback-wrapper">
             <p class="feedback"><?=Html::encode($review->description)?></p>
-            <p class="task">Задание «<a href="#" class="link link--small"><?=Html::encode($review->task->name)?></a>» выполнено</p>
+            <p class="task">Задание «<a href="<?=Url::to(['tasks/view', 'id' => $review->task->id])?>" class="link link--small"><?=Html::encode($review->task->name)?></a>» выполнено</p>
           </div>
           <div class="feedback-wrapper">
-            <div class="stars-rating small"><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span class="fill-star">&nbsp;</span><span>&nbsp;</span></div>
-            <p class="info-text"><span class="current-time"><?=Html::encode($review->date)?> </span>назад</p>
+            <?=TaskForceHelper::renderStarsRating($review->rating, 'small')?>
+            <p class="info-text"><span class="current-time"><?=Html::encode(TaskForceHelper::humanTimeDiff($review->date))?></span></p>
           </div>
         </div>
       <?php endforeach; ?>
@@ -55,11 +60,11 @@ use yii\helpers\Url;
         <dt>Всего заказов</dt>
         <dd><?=$user->tasksCount?> выполнено, <?=$user->failedTasksCount?> провалено</dd>
         <dt>Место в рейтинге</dt>
-        <dd><i>25 место - править</i></dd>
+        <dd>2 место</dd>
         <dt>Дата регистрации</dt>
-        <dd><?=Html::encode($user->reg_date)?></dd>
+        <dd><?= Yii::$app->formatter->asDate($user->reg_date, 'php:d.m.Y') ?></dd>
         <dt>Статус</dt>
-        <dd><i>Открыт для новых заказов - править</i></dd>
+        <dd>Открыт для новых заказов</dd>
       </dl>
     </div>
     <div class="right-card white">
