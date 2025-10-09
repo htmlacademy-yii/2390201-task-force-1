@@ -1,8 +1,8 @@
-CREATE DATABASE taskforce
+CREATE DATABASE taskforce1009
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
-USE taskforce;
+USE taskforce1009;
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,6 +59,12 @@ CREATE TABLE tasks_files (
   file_path VARCHAR(256) NOT NULL,
   file_size INT NOT NULL,
   user_filename VARCHAR(256) NOT NULL
+);
+
+CREATE TABLE task_statuses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(128) NOT NULL,
+  rus_name VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE task_responses (

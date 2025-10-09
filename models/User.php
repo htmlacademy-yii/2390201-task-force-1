@@ -172,7 +172,7 @@ class User extends ActiveRecord implements IdentityInterface
   public function getFailedTasksCount()
   {
     return $this->getTasksAccepted()
-      ->andWhere(['status_id' => \Romnosk\Models\Status::Failed->id()])
+      ->andWhere(['status_id' => TaskStatusAndAction::STATUS_FAILED])
       ->count();
   }
 

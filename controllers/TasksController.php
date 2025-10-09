@@ -79,9 +79,10 @@ class TasksController extends SecuredController
     if (!$task) {
       throw new NotFoundHttpException("Задача {$id} не найдена.");
     }
+    $taskFiles = $task->getFiles()->all();
     $taskResponse = new TaskResponse();     // для попап-формы отклика исполнителя
     $customerReview = new CustomerReview(); // для попап-формы отзыва заказчика
-    return $this->render('view', compact('task', 'taskResponse', 'customerReview'));
+    return $this->render('view', compact('task', 'taskResponse', 'customerReview', 'taskFiles'));
   }
 
   /**

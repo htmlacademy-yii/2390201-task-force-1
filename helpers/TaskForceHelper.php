@@ -133,4 +133,20 @@ class TaskForceHelper
     $output .= '</div>';
     return $output;
   }
+
+  /**
+   * На вход получает размер в байтах, а выдаёт строку вида: Х байт / Х Кб / Х Мб
+   */
+  public static function formatBytes(int $bytes) {
+    if ($bytes < 0) {
+      return '';
+    }
+    if ($bytes < 1024) {
+      return $bytes . ' байт';
+    }
+    if ($bytes < 1024 * 1024) {
+      return round($bytes / 1024, 1) . ' Кб';
+    }
+    return round($bytes / (1024 * 1024), 1) . ' Мб';
+  }
 }
