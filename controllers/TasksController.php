@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use app\models\Constants;
 use app\models\Task;
 use app\models\Category;
 use app\models\Location;
@@ -15,6 +16,7 @@ use yii\web\Request;
 use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
+use yii\data\Pagination;
 
 class TasksController extends SecuredController
 {
@@ -45,16 +47,29 @@ class TasksController extends SecuredController
     $taskFilterForm->load(\Yii::$app->request->get());
     $categories = Category::find()->all();
 
-    // Базовый запрос - новые задачи по убыванию.
+    // Базовый запрос - новые задачи, из города пользователя, по убыванию.
     $tasks = Task::find()
       ->where(['status_id' => TaskStatusAndAction::STATUS_NEW])
+      ->andWhere(['or',
+        ['location_id' => Yii::$app->user->identity->location_id ],
+        ['is', 'location_id', null]])
       ->orderBy(['date' => SORT_DESC]);
     // Применяем условия фильтрации
     $this->TasksFiltering($taskFilterForm, $tasks);
-    // Получаем все задачи с применёнными фильтрами
-    $tasks = $tasks->all();
 
-    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories'));
+    // Создаём пагинацию
+    $pagination = new Pagination([
+      'totalCount' => $tasks->count(),
+      'pageSize' => Constants::TASKS_ON_PAGE,
+    ]);
+
+    // Получаем только нужные записи для текущей страницы
+    $tasks = $tasks
+      ->offset($pagination->offset)
+      ->limit($pagination->limit)
+      ->all();
+
+    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories', 'pagination'));
   }
 
   // Просмотр задачи с ID = $id

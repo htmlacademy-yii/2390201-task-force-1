@@ -61,12 +61,6 @@ CREATE TABLE tasks_files (
   user_filename VARCHAR(256) NOT NULL
 );
 
-CREATE TABLE task_statuses (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(128) NOT NULL,
-  rus_name VARCHAR(128) NOT NULL
-);
-
 CREATE TABLE task_responses (
   id INT AUTO_INCREMENT PRIMARY KEY,
   task_id INT NOT NULL,

@@ -1,8 +1,9 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
-use yii\widgets\ActiveForm;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 ?>
 
 <main id="main" class="main-content container" role="main">
@@ -28,23 +29,16 @@ use yii\helpers\Url;
       <?php endforeach; ?>
 
       <div class="pagination-wrapper">
-        <ul class="pagination-list">
-          <li class="pagination-item mark">
-            <a href="#" class="link link--page"></a>
-          </li>
-          <li class="pagination-item">
-            <a href="#" class="link link--page">1</a>
-          </li>
-          <li class="pagination-item pagination-item--active">
-            <a href="#" class="link link--page">2</a>
-          </li>
-          <li class="pagination-item">
-            <a href="#" class="link link--page">3</a>
-          </li>
-          <li class="pagination-item mark">
-            <a href="#" class="link link--page"></a>
-          </li>
-        </ul>
+        <?= LinkPager::widget([
+          'pagination' => $pagination,
+          'options' => ['class' => 'pagination-list'],
+          'linkContainerOptions' => ['class' => 'pagination-item'],
+          'linkOptions' => ['class' => 'link link--page'],
+          'activePageCssClass' => 'pagination-item--active',
+          'disabledPageCssClass' => 'disabled',
+          'prevPageLabel' => '&laquo;',
+          'nextPageLabel' => '&raquo;',
+        ]) ?>
       </div>
     <?php endif; ?>
   </div>
@@ -69,7 +63,7 @@ use yii\helpers\Url;
                     return '<label class="control-label">'
                       . Html::checkbox($name, $checked, ['value' => $value, 'class' => ''])
                       . ' ' . Html::encode($label)
-                      . '</label>';
+                      . '</label><br>';
                   },
                   'unselect' => null,
                 ]

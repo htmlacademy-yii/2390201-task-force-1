@@ -81,7 +81,7 @@ INSERT INTO `users` VALUES
 CREATE UNIQUE INDEX idx_email_unique ON users (email);
 
 -- выгружает дамп таблицы users (запускать не в консоли mysql а в терминале)
--- mysqldump -u sqladmin -p --no-create-info --skip-triggers --compact taskforce users > users_data.sql
+-- mysqldump -u sqladmin -p --no-create-info --skip-triggers --compact --complete-insert taskforce users > users_data.sql
 
 TRUNCATE TABLE customer_reviews;
 INSERT INTO customer_reviews (customer_id, executor_id, task_id, description, rating, date)
