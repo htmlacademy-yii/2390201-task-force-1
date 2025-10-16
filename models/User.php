@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use yii\web\UploadedFile;
 use app\validators\UserDateValidator;
+use Romnosk\TaskStatusAndAction;
 
 /**
  * This is the model class for table "users".

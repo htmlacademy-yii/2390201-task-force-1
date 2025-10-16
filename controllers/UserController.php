@@ -4,16 +4,18 @@ namespace app\controllers;
 
 use Yii;
 use app\models\User;
-use app\models\Category;
-use app\models\ExecutorCategory;
-use yii\web\Controller;
+use app\services\UserEditService;
 use yii\web\NotFoundHttpException;
-use yii\web\UploadedFile;
-use yii\web\ForbiddenHttpException;
 
 class UserController extends SecuredController
 {
-  // Просмотр информации о пользователе с ID=$id
+  /**
+   * Отображает информацию о пользователе-исполнителе по указанному ID.
+   *
+   * @param int $id Идентификатор пользователя.
+   * @return string Рендеринг представления 'view'.
+   * @throws NotFoundHttpException Если пользователь не найден или не является исполнителем.
+   */
   public function actionView(int $id)
   {
     $user = User::findOne($id);
@@ -31,7 +33,11 @@ class UserController extends SecuredController
     ]);
   }
 
-  // Выход пользователя с сайта, перенаправление на главную страницу
+  /**
+   * Выполняет выход текущего пользователя из системы и перенаправляет на главную страницу.
+   *
+   * @return \yii\web\Response
+   */
   public function actionLogout()
   {
     \Yii::$app->user->logout();
@@ -40,7 +46,11 @@ class UserController extends SecuredController
   }
 
   /**
-   * Редактирование текущим пользователем информации о себе
+   * Выполняет редактирование профиля текущего пользователя через форму редактирования.
+   * Обрабатывает как отображение формы редактирования, так и сохранение изменений.
+   *
+   * @return string|\yii\web\Response Рендеринг формы редактирования или перенаправление после успешного сохранения.
+   * @throws NotFoundHttpException Если текущий пользователь не авторизован.
    */
   public function actionEdit()
   {
@@ -48,30 +58,14 @@ class UserController extends SecuredController
     if (!$user) {
       throw new NotFoundHttpException('Пользователь не найден.');
     }
-    // Инициализируем вирт. поле специализаций, все существующие специализации, вирт.поле даты рождения из БД
-    $user->selectedCategoryIds = $user->categories ? array_column($user->categories, 'category_id') : [];
-    $allCategories = Category::find()->all();
-    $user->birth_date_view = $user->formatBirthDateForView($user->birth_date);
 
-    if (Yii::$app->request->isPost) {
-      $user->scenario = 'edit';
-      $postData = Yii::$app->request->post();
-      unset($postData['User']['avatar']); // иначе $user->load() обнулит avatar, загруженный из БД
-      $user->load($postData);
-      $uploadedAvatar = UploadedFile::getInstance($user, 'avatar');
+    $service = new UserEditService();//логика редактирования вынесена в UserEditService
+    $result = $service->execute($user);
 
-      if ($user->avatarFileEmptyOrSaved($uploadedAvatar) &&
-          $user->validate() &&
-          $user->save()) {
-        ExecutorCategory::updateForUser($user->id, $user->selectedCategoryIds);
-        return $this->redirect(['view', 'id' => $user->id]);
-      }
+    if (isset($result['redirect'])) {
+      return $this->redirect($result['redirect']);
     }
 
-    return $this->render('edit', [
-      'user' => $user,
-      'allCategories' => $allCategories,
-    ]);
+    return $this->render($result['render'], $result['params']);
   }
 }
-

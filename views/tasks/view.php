@@ -3,7 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use yii\widgets\ActiveForm;
-use app\models\TaskStatusAndAction;
+use Romnosk\TaskStatusAndAction;
 use app\models\TaskResponse;
 use app\helpers\TaskForceHelper;
 
