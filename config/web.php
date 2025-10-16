@@ -54,7 +54,6 @@ $config = [
       'locale' => 'ru-RU',
       'timeZone' => 'Europe/Moscow',
     ],
-    /*
     'urlManager' => [
       'enablePrettyUrl' => true,
       'showScriptName' => false,
@@ -62,7 +61,7 @@ $config = [
         'tasks/view/<id:\d+>' => 'tasks/view',
         'user/view/<id:\d+>' => 'user/view',
       ],
-    ],*/
+    ],
   ],
     'params' => $params,
 ];

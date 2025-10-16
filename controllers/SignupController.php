@@ -2,31 +2,20 @@
 
 namespace app\controllers;
 
-use app\models\User;
-use app\models\SignupForm;
-use yii\web\Controller;
 use Yii;
+use yii\web\Controller;
+use app\models\SignupForm;
+use app\services\SignupService;
 
 class SignupController extends Controller
 {
-  // Заполняем поля нового пользователя модели User из модели формы регистрации SignupForm
-  // Поля, которых нет в форме, сохранятся в БД как null
-  private function userFromSignupForm(SignupForm $signupForm): User
-  {
-    $user = new User();
-
-    $user->name = $signupForm->name;
-    $user->email = $signupForm->email;
-    $user->password = Yii::$app->security->generatePasswordHash($signupForm->password);
-    $user->location_id = $signupForm->location_id;
-    $user->is_executor = $signupForm->is_executor;
-    $user->reg_date = date('Y-m-d H:i:s');
-    $user->avatar = 'img/man-running.png';
-
-    return $user;
-  }
-
-  // Регистрация нового пользователя
+  /**
+   * Отображает форму регистрации и обрабатывает отправку данных.
+   * Если пользователь уже авторизован, перенаправляет на главную страницу задач.
+   * При успешной валидации формы создаёт нового пользователя и выполняет вход.
+   *
+   * @return \yii\web\Response|\yii\web\View
+   */
   public function actionIndex()
   {
     // Залогиненным пользователям страница регистрации недоступна
@@ -38,7 +27,8 @@ class SignupController extends Controller
     if (Yii::$app->request->isPost) {
       $signupForm->load(Yii::$app->request->post());
       if ($signupForm->validate()) {
-        $user = $this->userFromSignupForm($signupForm);
+        $signupService = new SignupService();
+        $user = $signupService->createUserFromForm($signupForm);
         $user->save(false);
         return $this->goHome();
       }

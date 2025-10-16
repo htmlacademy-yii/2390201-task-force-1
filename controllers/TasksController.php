@@ -3,76 +3,50 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Constants;
 use app\models\Task;
-use app\models\Category;
-use app\models\Location;
-use app\models\TaskFilter;
 use app\models\TaskResponse;
 use app\models\CustomerReview;
-use app\models\TaskStatusAndAction;
-use yii\web\Controller;
-use yii\web\Request;
-use yii\web\UploadedFile;
+use Romnosk\TaskStatusAndAction;
+use app\services\TasksService;
 use yii\web\NotFoundHttpException;
 use yii\web\ForbiddenHttpException;
-use yii\data\Pagination;
+use yii\web\UploadedFile;
 
 class TasksController extends SecuredController
 {
-  // Отработка условий выбора задач по фильтрам
-  private function TasksFiltering(TaskFilter &$taskFilterForm, \yii\db\ActiveQuery &$tasks) :void
+  private ?TasksService $tasksService = null;
+
+  private function getTasksService(): TasksService
   {
-    // Фильтр по категориям (специализациям)
-    if (!empty($taskFilterForm->categories)) {
-      $tasks->andWhere(['in', 'category_id', $taskFilterForm->categories]);
+    if ($this->tasksService === null) {
+      $this->tasksService = new TasksService();
     }
-    // Фильтр по удалённой работе (location_id IS NULL)
-    if ($taskFilterForm->remote) {
-      $tasks->andWhere(['is', 'location_id', null]);
-    }
-    // Фильтр по отсутствию исполнителя
-    if ($taskFilterForm->no_executor) {
-      $tasks->andWhere(['is', 'executor_id', null]);
-    }
-    // Фильтр по периоду
-    $interval = $taskFilterForm->period ?? '-365 days';
-    $tasks->andWhere(['>=', 'date', date('Y-m-d H:i:s', strtotime($interval))]);
+    return $this->tasksService;
   }
 
-  // Просмотр списка новых задач с возможностью фильтрации
+  /**
+   * Просмотр списка новых задач с возможностью фильтрации.
+   *
+   * @return string
+   */
   public function actionIndex()
   {
-    $taskFilterForm = new TaskFilter();
-    $taskFilterForm->load(\Yii::$app->request->get());
-    $categories = Category::find()->all();
+    $taskFilterForm = new \app\models\TaskFilter();
+    $taskFilterForm->load(Yii::$app->request->get());
 
-    // Базовый запрос - новые задачи, из города пользователя, по убыванию.
-    $tasks = Task::find()
-      ->where(['status_id' => TaskStatusAndAction::STATUS_NEW])
-      ->andWhere(['or',
-        ['location_id' => Yii::$app->user->identity->location_id ],
-        ['is', 'location_id', null]])
-      ->orderBy(['date' => SORT_DESC]);
-    // Применяем условия фильтрации
-    $this->TasksFiltering($taskFilterForm, $tasks);
+    $service = $this->getTasksService();
+    $data = $service->getFilteredNewTasks($taskFilterForm); //Логика фильтрации вынесена в getFilteredNewTasks
 
-    // Создаём пагинацию
-    $pagination = new Pagination([
-      'totalCount' => $tasks->count(),
-      'pageSize' => Constants::TASKS_ON_PAGE,
-    ]);
-
-    // Получаем только нужные записи для текущей страницы
-    $tasks = $tasks
-      ->offset($pagination->offset)
-      ->limit($pagination->limit)
-      ->all();
-
-    return $this->render('index', compact('tasks', 'taskFilterForm', 'categories', 'pagination'));
+    return $this->render('index', array_merge($data, ['taskFilterForm' => $taskFilterForm]));
   }
 
-  // Просмотр задачи с ID = $id
+  /**
+   * Просмотр задачи с ID = $id.
+   *
+   * @param int $id идентификатор задачи
+   * @return string
+   * @throws NotFoundHttpException если задача не найдена
+   */
   public function actionView(int $id)
   {
     $task = Task::findOne($id);
@@ -89,7 +63,7 @@ class TasksController extends SecuredController
    * Добавление новой задачи.
    *
    * @return string|\yii\web\Response
-   * @throws \yii\web\ForbiddenHttpException если пользователь — исполнитель
+   * @throws ForbiddenHttpException если пользователь — исполнитель
    */
   public function actionAdd()
   {
@@ -97,7 +71,7 @@ class TasksController extends SecuredController
       throw new ForbiddenHttpException('Исполнители не могут создавать новые задачи.');
     }
 
-    $categories = Category::find()->all();
+    $categories = \app\models\Category::find()->all();
     $task = new Task();
 
     if (!Yii::$app->request->isPost) {
@@ -116,7 +90,12 @@ class TasksController extends SecuredController
   }
 
   /**
-   * Принять отклик на задание (назначить исполнителя)
+   * Принять отклик на задание (назначить исполнителя).
+   *
+   * @param int $id идентификатор задачи
+   * @return \yii\web\Response
+   * @throws NotFoundHttpException если задача или отклик не найдены
+   * @throws \RuntimeException если не удалось сохранить изменения
    */
   public function actionAcceptResponse(int $id)
   {
@@ -128,14 +107,19 @@ class TasksController extends SecuredController
 
     $task->acceptNewTaskResponse(Yii::$app->user->id, $response->executor_id);
     $response->accepted = true;
-    if(!$task->save(false) || !$response->save(false)){
+    if (!$task->save(false) || !$response->save(false)) {
       throw new \RuntimeException("Не удалось сохранить запись об отклике исполнителя в БД для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
 
   /**
-   * Отклонить отклик на задание
+   * Отклонить отклик на задание.
+   *
+   * @param int $id идентификатор задачи
+   * @return \yii\web\Response
+   * @throws NotFoundHttpException если отклик не найден
+   * @throws \RuntimeException если не удалось сохранить изменения
    */
   public function actionDeclineResponse(int $id)
   {
@@ -145,14 +129,19 @@ class TasksController extends SecuredController
     }
 
     $response->declined = true;
-    if(!$response->save(false)){
+    if (!$response->save(false)) {
       throw new \RuntimeException("Не удалось сохранить запись об отклонении отклика в БД для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
 
   /**
-   * Исполнителю отказаться от задания
+   * Исполнителю отказаться от задания.
+   *
+   * @param int $id идентификатор задачи
+   * @return \yii\web\Response
+   * @throws NotFoundHttpException если задача не найдена
+   * @throws \RuntimeException если не удалось сохранить изменения
    */
   public function actionDecline(int $id)
   {
@@ -162,31 +151,41 @@ class TasksController extends SecuredController
     }
 
     $task->executorDecline(Yii::$app->user->id, $task->executor_id);
-    if(!$task->save(false)){
+    if (!$task->save(false)) {
       throw new \RuntimeException("Не удалось сохранить запись об отказе исполнителя в БД для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
 
   /**
-   * Исполнителю откликнуться на задание
+   * Исполнителю откликнуться на задание.
+   *
+   * @param int $id идентификатор задачи
+   * @return \yii\web\Response
+   * @throws NotFoundHttpException если не удалось загрузить параметры отклика
+   * @throws \RuntimeException если не удалось сохранить отклик
    */
   public function actionRespond(int $id)
   {
     $taskResponse = new TaskResponse();
-    if(!$taskResponse->load(Yii::$app->request->post())){
+    if (!$taskResponse->load(Yii::$app->request->post())) {
       throw new NotFoundHttpException("Не удалось загрузить параметры отклика на задачу {$id}");
     }
 
     $taskResponse->executorRespond($id, Yii::$app->user->id);
-    if(!$taskResponse->save(false)){
+    if (!$taskResponse->save(false)) {
       throw new \RuntimeException("Не удалось сохранить запись об отклике исполнителя в БД для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
 
   /**
-   * Заказчику завершить задание и написать отзыв на исполнителя
+   * Заказчику завершить задание и написать отзыв на исполнителя.
+   *
+   * @param int $id идентификатор задачи
+   * @return \yii\web\Response
+   * @throws NotFoundHttpException если задача не найдена или не загружен отзыв
+   * @throws \RuntimeException если не удалось сохранить данные
    */
   public function actionComplete(int $id)
   {
@@ -198,83 +197,23 @@ class TasksController extends SecuredController
 
     $task->completeByCustomer(Yii::$app->user->id);
     $customerReview->addReview(Yii::$app->user->id, $task->executor_id, $id);
-    if(!$task->save(false) || !$customerReview->save(false)){
+    if (!$task->save(false) || !$customerReview->save(false)) {
       throw new \RuntimeException("Не удалось сохранить в БД запись об отзыве на исполнителя для задачи {$id}");
     }
     return $this->redirect(['view', 'id' => $id]);
   }
 
   /**
-   * Добавляет фильтры отбора задач для просмотра, если пользователь - исполнитель
-   */
-  private function ExecutorTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
-  {
-    switch ($status) {
-      case 'overdue':
-        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK])
-              ->andWhere(['<', 'deadline', date('Y-m-d')]);
-        break;
-      case 'closed':
-        $tasks->andWhere(['in', 'status_id', [
-          TaskStatusAndAction::STATUS_DONE,
-          TaskStatusAndAction::STATUS_FAILED
-        ]]);
-        break;
-      case 'in-progress':
-      default:
-        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
-        break;
-    }
-  }
-
-  /**
-   * Добавляет фильтры отбора задач для просмотра, если пользователь - заказчик
-   */
-  private function CustomerTasksFiltering(?string $status, \yii\db\ActiveQuery &$tasks) :void
-  {
-    switch ($status) {
-      case 'in-progress':
-        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_IN_WORK]);
-        break;
-      case 'closed':
-        $tasks->andWhere(['in', 'status_id', [
-          TaskStatusAndAction::STATUS_CANCELED,
-          TaskStatusAndAction::STATUS_DONE,
-          TaskStatusAndAction::STATUS_FAILED
-        ]]);
-        break;
-      case 'new':
-      default:
-        $tasks->andWhere(['status_id' => TaskStatusAndAction::STATUS_NEW])
-              ->andWhere(['is', 'executor_id', null]);
-        break;
-    }
-  }
-
-  /**
    * Отображает задачи текущего пользователя: либо как исполнителя, либо как заказчика.
-   * В представлении передаётся значение фильтра по статусу:
-   * 'in-progress', 'overdue', 'closed' (для исполнителя)
-   * 'new', 'in-progress', 'closed' (для заказчика)
    *
    * @param string|null $status фильтр по статусу
-   *
    * @return string
    */
   public function actionMy(?string $status = null)
   {
-    $user = Yii::$app->user->identity;
-    $tasks = Task::find();
+    $service = $this->getTasksService();
+    $data = $service->getMyTasks($status); // Логика получения задач вынесена в getMyTasks
 
-    if ($user->is_executor) {
-      $tasks->andWhere(['executor_id' => $user->id]);
-      $this->ExecutorTasksFiltering($status, $tasks);
-    } else {
-      $tasks->andWhere(['customer_id' => $user->id]);
-      $this->CustomerTasksFiltering($status, $tasks);
-    }
-    $tasks = $tasks->orderBy(['date' => SORT_DESC])->all();
-
-    return $this->render('my', compact('tasks', 'status'));
+    return $this->render('my', $data);
   }
 }

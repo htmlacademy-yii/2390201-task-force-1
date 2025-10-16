@@ -1,4 +1,4 @@
-USE taskforce;
+USE taskforce1009;
 
 TRUNCATE TABLE locations;
 INSERT INTO locations (name,latitude,longitude)

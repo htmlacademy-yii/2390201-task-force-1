@@ -1,5 +1,5 @@
 <?php
-namespace app\models;
+namespace Romnosk;
 
 class TaskStatusAndAction
 {
@@ -80,22 +80,6 @@ class TaskStatusAndAction
     return null;
   }
 
-  private static function actionAllowed (int $action, int $userId, int $customerId, ?int $executorId): bool {
-    if ($action === self::ACTION_CANCEL) {
-      return $customerId === $userId;
-    }
-    if ($action === self::ACTION_RESPOND) {
-      return $customerId !== $userId;
-    }
-    if ($action === self::ACTION_COMPLETE) {
-      return $customerId === $userId;
-    }
-    if ($action === self::ACTION_DECLINE) {
-      return $executorId !== null && $executorId === $userId;
-    }
-    return false;
-  }
-
   /**
    * Возвращает список доступных действий для указанного статуса. Если задан статус, для
    * которого нет действий - вернёт пустой массив.
@@ -115,5 +99,32 @@ class TaskStatusAndAction
     }
 
     return $result;
+  }
+
+  /**
+   * Определяет, является ли действие над задачей дпустимым для пользователя userId,
+   * если у задачи заказчик - customerId, а исполнитель - executorId
+   *
+   * @param int $action - id действия
+   * @param int $userId - id текущего пользователя
+   * @param int $customerId - id заказчика задачи
+   * @param int $executorId - id исполнителя задачи
+   *
+   * @return bool true - действие допустимо, false - нет
+   */
+  private static function actionAllowed (int $action, int $userId, int $customerId, ?int $executorId): bool {
+    if ($action === self::ACTION_CANCEL) {
+      return $customerId === $userId;
+    }
+    if ($action === self::ACTION_RESPOND) {
+      return $customerId !== $userId;
+    }
+    if ($action === self::ACTION_COMPLETE) {
+      return $customerId === $userId;
+    }
+    if ($action === self::ACTION_DECLINE) {
+      return $executorId !== null && $executorId === $userId;
+    }
+    return false;
   }
 }

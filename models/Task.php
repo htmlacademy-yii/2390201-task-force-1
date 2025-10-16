@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveRecord;
 use app\validators\LocationGeocodeValidator;
+use Romnosk\TaskStatusAndAction;
 
 /**
  * Класс модели для таблицы "tasks".
